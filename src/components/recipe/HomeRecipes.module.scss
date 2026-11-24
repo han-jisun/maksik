@@ -2,12 +2,7 @@
 @use "mixins" as *;
 
 .section {
-  margin-top: $space-10;
-}
-
-.eyebrow {
-  @include eyebrow;
-  margin-bottom: $space-1;
+  margin-top: $space-5;
 }
 
 .heading {

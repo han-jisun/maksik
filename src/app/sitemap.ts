@@ -7,8 +7,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   return [
     { url: absoluteUrl("/"), changeFrequency: "daily", priority: 1 },
-    { url: absoluteUrl("/about"), changeFrequency: "yearly", priority: 0.3 },
-    { url: absoluteUrl("/privacy"), changeFrequency: "yearly", priority: 0.3 },
     ...recipes.map((recipe) => ({
       url: absoluteUrl(`/recipe/${recipe.id}`),
       lastModified: recipe.updatedAt,

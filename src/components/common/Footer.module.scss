@@ -9,22 +9,6 @@
   font-size: $font-size-sm;
 }
 
-.links {
-  display: flex;
-  justify-content: center;
-  gap: $space-5;
-  margin-bottom: $space-2;
-
-  a {
-    padding: $space-2 0;
-    color: $color-text-sub;
-
-    &:hover {
-      color: $color-primary;
-    }
-  }
-}
-
 .copy {
   font-family: $font-family-title;
   font-size: $font-size-xs;

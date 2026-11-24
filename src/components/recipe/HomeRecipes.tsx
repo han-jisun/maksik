@@ -22,7 +22,6 @@ export default function HomeRecipes({ recipes }: { recipes: RecipeSummary[] }) {
 
       {/* 목록은 모두 가로로 자유롭게 넘기는 방식입니다. */}
       <section className={styles.section}>
-        <p className={styles.eyebrow}>{current ? "Chapter" : "New"}</p>
         <h2 className={styles.heading}>
           {current ? current.label : "최신 레시피"}
         </h2>
@@ -37,7 +36,6 @@ export default function HomeRecipes({ recipes }: { recipes: RecipeSummary[] }) {
       {category === "all" && recommended.length > 0 ? (
         <section className={styles.section}>
           {/* TODO: 좋아요 기능이 생기면 관리자 지정(recommended) 대신 좋아요 순으로 바꿉니다. */}
-          <p className={styles.eyebrow}>Most Loved</p>
           <h2 className={styles.heading}>인기 레시피</h2>
           <RecipeList recipes={recommended} layout="row" />
         </section>

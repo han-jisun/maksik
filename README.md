@@ -6,13 +6,13 @@
 ## 시작하기
 
 ```bash
-npm install
+pnpm install
 cp .env.example .env.local   # 값 채우기 (ADMIN_PASSWORD, SESSION_SECRET)
-npm run dev                  # http://localhost:3000
+pnpm dev                     # http://localhost:3000
 ```
 
 - 관리자: `http://localhost:3000/admin` → 비밀번호는 `.env.local` 의 `ADMIN_PASSWORD`
-- `npm run build` / `npm run start` / `npm run lint`
+- `pnpm build` / `pnpm start` / `pnpm lint`
 
 ## 구조
 
@@ -21,7 +21,7 @@ data/recipes.json             # 임시 레시피 저장소 (DB 확정 전)
 src/
 ├── proxy.ts                  # /admin, /api/admin 접근 차단 (Next 16 의 Middleware)
 ├── app/
-│   ├── (front)/              # 홈, /search, /recipe/[id], /about, /privacy
+│   ├── (front)/              # 홈, /search, /recipe/[id]
 │   ├── admin/                # /admin, /admin/login, /admin/write(?id=)
 │   ├── api/auth/             # login, logout
 │   ├── api/admin/recipes/    # 레시피 CRUD (관리자 전용)

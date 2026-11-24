@@ -1,17 +1,17 @@
 @use "variables" as *;
-@use "mixins" as *;
 
 // 색인 찾기처럼: 밑줄 하나에 얹힌 입력란
 .form {
   display: flex;
   align-items: stretch;
+  height: 36px;
   border-bottom: 1px solid $color-rule;
 }
 
 .input {
   flex: 1;
   min-width: 0;
-  min-height: 48px;
+  height: 100%;
   padding: 0 $space-1;
   border: 0;
   border-radius: 0;
@@ -34,8 +34,9 @@
 }
 
 .button {
-  @include touch-target(48px);
   flex-shrink: 0;
+  width: 36px;
+  height: 100%;
   display: inline-flex;
   align-items: center;
   justify-content: center;

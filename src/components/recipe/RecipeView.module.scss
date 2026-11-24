@@ -5,6 +5,7 @@
 .modeBar {
   display: flex;
   justify-content: flex-end;
+  align-items: center;
   height: 44px;
   margin-top: -40px;
   margin-bottom: $space-2;
@@ -12,32 +13,30 @@
 }
 
 .toggle {
+  @include touch-target(44px);
   display: inline-flex;
-  gap: $space-4;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 0 $space-1;
+  font-family: $font-family-title;
+  font-size: $font-size-sm;
+  font-weight: 700;
+  white-space: nowrap;
+  color: $color-text-sub;
   pointer-events: auto;
+  transition: color 0.15s;
 
-  button {
-    @include touch-target(44px);
-    border-bottom: 2px solid transparent;
-    font-family: $font-family-title;
-    font-size: $font-size-sm;
-    font-weight: 700;
-    color: $color-text-mute;
-    transition: color 0.15s, border-color 0.15s;
-
-    &:hover {
-      color: $color-text;
-    }
+  svg {
+    flex-shrink: 0;
   }
 
-  .on,
-  .on:hover {
-    border-bottom-color: $color-primary;
+  &:hover {
     color: $color-primary;
   }
 }
 
-// ---------- 한눈에 보기 ----------
+// ---------- 전체 보기 ----------
 .section {
   margin-top: $space-12;
 }

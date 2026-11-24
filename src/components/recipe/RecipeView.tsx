@@ -52,8 +52,8 @@ interface Props {
 
 /**
  * 레시피 본문 전체의 보기 방식 전환.
- * - 카드로 보기: 첫 화면 → 재료 → 조리 단계를 모두 한 장씩 넘겨 봅니다.
- * - 한눈에 보기: 같은 내용을 한 페이지에 세로로 나열합니다.
+ * - 넘겨 보기: 첫 화면 → 재료 → 조리 단계를 모두 한 장씩 넘겨 봅니다.
+ * - 전체 보기: 같은 내용을 한 페이지에 세로로 나열합니다.
  */
 export default function RecipeView({ cover, ingredients, steps, category }: Props) {
   const mode = useSyncExternalStore(subscribe, readMode, () => DEFAULT_MODE);
@@ -61,24 +61,50 @@ export default function RecipeView({ cover, ingredients, steps, category }: Prop
   return (
     <>
       <div className={styles.modeBar}>
-        <div className={styles.toggle} role="group" aria-label="보기 방식">
-          <button
-            type="button"
-            className={mode === "card" ? styles.on : undefined}
-            aria-pressed={mode === "card"}
-            onClick={() => writeMode("card")}
-          >
-            카드로 보기
-          </button>
-          <button
-            type="button"
-            className={mode === "scroll" ? styles.on : undefined}
-            aria-pressed={mode === "scroll"}
-            onClick={() => writeMode("scroll")}
-          >
-            한눈에 보기
-          </button>
-        </div>
+        <button
+          type="button"
+          className={styles.toggle}
+          onClick={() => writeMode(mode === "card" ? "scroll" : "card")}
+        >
+          {mode === "card" ? (
+            <>
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.6"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <rect x="4" y="4" width="16" height="6" rx="1.5" />
+                <path d="M4 14h16" />
+                <path d="M4 18h12" />
+              </svg>
+              <span>전체 보기</span>
+            </>
+          ) : (
+            <>
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.6"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <rect x="4" y="5" width="13" height="15" rx="1.5" />
+                <path d="M20 7v11a2 2 0 0 1-2 2h-1" />
+              </svg>
+              <span>넘겨 보기</span>
+            </>
+          )}
+        </button>
       </div>
 
       {mode === "card" ? (

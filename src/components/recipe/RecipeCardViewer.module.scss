@@ -1,26 +1,28 @@
 @use "variables" as *;
 @use "mixins" as *;
 
-// 책의 한 쪽처럼: 종이색 면, 가는 테두리, 아래에 쪽 번호
-// 화면 높이에 맞춘 한 장. 내용이 길면(재료가 많을 때 등) 카드 안에서 세로로 스크롤합니다.
+// 겹쳐 쌓인 카드 덱 무대: 카드가 좌우로 기울어지며 날아가도 가로 스크롤바가 생기지 않도록 clip 처리합니다.
 .viewer {
   display: flex;
   flex-direction: column;
-  height: min(calc(100dvh - 88px), 780px);
-  min-height: 420px;
-  background: $color-surface;
-  border: 1px solid $color-rule;
-  border-radius: $radius-sm;
-  overflow: hidden;
+  margin-inline: -$space-5;
+  padding-inline: $space-5;
+  overflow-x: clip;
+
+  &:focus-visible {
+    outline: none;
+  }
 }
 
 .progress {
   display: flex;
-  gap: 2px;
+  gap: 4px;
+  margin-bottom: $space-3;
 
   span {
     flex: 1;
     height: 3px;
+    border-radius: $radius-full;
     background: $color-border;
     transition: background-color 0.2s;
   }
@@ -30,34 +32,98 @@
   }
 }
 
-.track {
-  flex: 1;
-  min-height: 0;
+// 뒤 카드 최대 2장이 위쪽으로 8px씩 촘촘히 겹쳐 보이도록 상단 여유를 둡니다.
+.stage {
+  position: relative;
+  height: min(calc(100dvh - 150px), 680px);
+  min-height: 440px;
+  margin-top: 18px;
+}
+
+.card {
+  position: absolute;
+  inset: 0;
   display: flex;
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  overscroll-behavior-x: contain;
-  scrollbar-width: none;
+  flex-direction: column;
+  border-radius: 22px;
+  background: $color-surface;
+  border: 1px solid #d6ccb4;
+  box-shadow:
+    0 12px 28px rgba(59, 54, 46, 0.09),
+    0 2px 8px rgba(59, 54, 46, 0.05);
+  overflow: hidden;
+  will-change: transform;
 
-  &::-webkit-scrollbar {
-    display: none;
-  }
-
-  &:focus-visible {
-    outline-offset: -2px;
+  img {
+    -webkit-user-drag: none;
+    user-select: none;
   }
 }
 
-.slide {
-  flex: 0 0 100%;
-  min-width: 0;
+.topCard {
+  cursor: grab;
+  touch-action: pan-y;
+  transform-origin: center 75%;
+}
+
+.dragging {
+  cursor: grabbing;
+  user-select: none;
+}
+
+.backCard {
+  pointer-events: none;
+  transform-origin: center top;
+  box-shadow:
+    0 4px 12px rgba(59, 54, 46, 0.07),
+    0 1px 3px rgba(59, 54, 46, 0.04);
+}
+
+.exitingCard {
+  pointer-events: none;
+}
+
+// 드래그 중 다음/이전 방향을 살짝 알려주는 배지
+.swipeBadge {
+  position: absolute;
+  top: $space-5;
+  z-index: 5;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: $space-2 $space-3;
+  border-radius: $radius-full;
+  font-family: $font-family-title;
+  font-size: $font-size-xs;
+  font-weight: 800;
+  color: $color-header-text;
+  pointer-events: none;
+  box-shadow: 0 6px 16px rgba(59, 54, 46, 0.16);
+}
+
+.badgeNext {
+  right: $space-5;
+  background: $color-primary;
+}
+
+.badgePrev {
+  left: $space-5;
+  background: $color-header;
+}
+
+.body {
+  flex: 1;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   padding: $space-6 $space-5;
   overflow-y: auto;
   overscroll-behavior-y: contain;
-  scroll-snap-align: start;
-  scroll-snap-stop: always;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 // 내용이 짧으면 카드 가운데에, 길면 위에서부터 놓입니다.
@@ -67,17 +133,17 @@
 }
 
 // ---------- 첫 화면 카드 ----------
-// 요리책의 사진 쪽처럼: 사진을 카드 맨 위에 여백 없이 크게, 제목과 소개는 그 아래에.
+// 사진을 카드 상단에 여백 없이 꽉 차게 올리고, 제목과 소개는 그 아래에 배치합니다.
 .inner:has([data-recipe-cover]) {
   margin-block: 0 auto;
 }
 
-.slide [data-recipe-cover] {
+.card [data-recipe-cover] {
   display: flex;
   flex-direction: column;
 }
 
-.slide [data-cover-photo] {
+.card [data-cover-photo] {
   order: -1;
   margin: (-$space-6) (-$space-5) $space-6;
 
@@ -136,15 +202,14 @@
   }
 }
 
-
-// 쪽 번호와 양옆 화살표: 책처럼 카드 아래 가운데에 작게
+// 쪽 번호와 양옆 화살표: 카드 덱 아래 가운데에 배치
 .pager {
   flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: $space-1;
-  padding-bottom: $space-1;
+  margin-top: $space-3;
 }
 
 .arrow {
