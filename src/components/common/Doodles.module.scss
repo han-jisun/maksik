@@ -1,0 +1,87 @@
+@use "sass:color";
+@use "variables" as *;
+
+.defs {
+  position: absolute;
+}
+
+.doodle {
+  display: block;
+  overflow: visible;
+}
+
+// 물감 색: 살짝 비치게 칠해 수채화처럼 보이게 합니다.
+.red {
+  fill: rgba(#c2574f, 0.82);
+}
+
+.orange {
+  fill: rgba(#d98a4e, 0.88);
+}
+
+.yellow {
+  fill: rgba(#e6c75a, 0.9);
+}
+
+.onion {
+  fill: rgba(#ecd9a6, 0.95);
+}
+
+.ochre {
+  fill: rgba($color-ochre, 0.9);
+}
+
+.deepGreen {
+  fill: rgba(color.scale($color-accent, $lightness: -18%), 0.85);
+}
+
+.flesh {
+  fill: $color-avocado-flesh;
+}
+
+// 가는 펜 선
+.outlined {
+  stroke: rgba($color-rule, 0.75);
+  stroke-width: 0.9;
+  stroke-linejoin: round;
+}
+
+.line {
+  fill: none;
+  stroke: rgba($color-rule, 0.55);
+  stroke-width: 1;
+  stroke-linecap: round;
+}
+
+// 꼭지 · 잎: 굵은 초록 붓선
+.stem {
+  fill: none;
+  stroke: rgba(color.scale($color-accent, $lightness: -10%), 0.95);
+  stroke-width: 2.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.highlight {
+  fill: none;
+  stroke: rgba(#fff, 0.45);
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+// 접시
+.plate {
+  fill: $color-surface;
+}
+
+.rimOuter {
+  fill: none;
+  stroke: rgba($color-ochre, 0.6);
+  stroke-width: 9;
+}
+
+.rimInner {
+  fill: none;
+  stroke: rgba($color-ochre, 0.85);
+  stroke-width: 2.4;
+}

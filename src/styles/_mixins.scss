@@ -1,0 +1,127 @@
+@use "variables" as *;
+
+// 모바일 퍼스트: 기본 스타일은 모바일, 아래 믹스인으로 확장합니다.
+@mixin tablet {
+  @media (min-width: $bp-tablet) {
+    @content;
+  }
+}
+
+@mixin desktop {
+  @media (min-width: $bp-desktop) {
+    @content;
+  }
+}
+
+@mixin container($max: $layout-max-width) {
+  width: 100%;
+  max-width: $max;
+  margin-inline: auto;
+  padding-inline: $space-4;
+}
+
+@mixin card {
+  background: $color-surface;
+  border: 1px solid $color-border;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-card;
+}
+
+// 손글씨로 적은 작은 표제 (예: ingredients, 분류 이름)
+@mixin eyebrow {
+  font-family: $font-family-hand;
+  font-size: 1.3125rem;
+  font-weight: 400;
+  line-height: 1.1;
+  letter-spacing: 0.02em;
+  text-transform: lowercase;
+  color: $color-primary;
+}
+
+// 장(章) 제목: 아래에 진한 괘선
+@mixin section-heading {
+  padding-bottom: $space-2;
+  border-bottom: 1px solid $color-rule;
+  font-size: $font-size-xl;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+@mixin ellipsis($lines: 1) {
+  overflow: hidden;
+  @if $lines == 1 {
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  } @else {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: $lines;
+    line-clamp: $lines;
+  }
+}
+
+// 주방에서 누르기 쉬운 최소 터치 영역
+@mixin touch-target($size: 44px) {
+  min-width: $size;
+  min-height: $size;
+}
+
+@mixin button-base {
+  @include touch-target;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: $space-2;
+  padding: 0 $space-4;
+  border: 1px solid transparent;
+  border-radius: $radius-md;
+  font-family: $font-family-title;
+  font-size: $font-size-md;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.15s, border-color 0.15s, color 0.15s;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+@mixin button-primary {
+  @include button-base;
+  background: $color-header;
+  color: $color-header-text;
+
+  &:hover:not(:disabled) {
+    background: $color-primary;
+  }
+}
+
+@mixin button-ghost {
+  @include button-base;
+  background: transparent;
+  border-color: $color-rule;
+  color: $color-text;
+
+  &:hover:not(:disabled) {
+    border-color: $color-primary;
+    color: $color-primary;
+  }
+}
+
+@mixin input-base {
+  width: 100%;
+  min-height: 44px;
+  padding: $space-2 $space-3;
+  border: 1px solid $color-border;
+  border-radius: $radius-md;
+  background: $color-surface;
+  color: $color-text;
+  font-size: $font-size-md;
+
+  &:focus {
+    outline: 2px solid $color-primary;
+    outline-offset: 1px;
+    border-color: $color-primary;
+  }
+}

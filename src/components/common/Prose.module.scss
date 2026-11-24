@@ -1,0 +1,43 @@
+@use "variables" as *;
+
+// 소개, 정책 등 글 위주 페이지 공통 스타일
+.prose {
+  h1 {
+    margin-bottom: $space-4;
+    font-size: $font-size-2xl;
+    font-weight: 800;
+  }
+
+  h2 {
+    margin: $space-8 0 $space-2;
+    font-size: $font-size-lg;
+    font-weight: 800;
+  }
+
+  p {
+    margin-bottom: $space-3;
+    color: $color-text;
+  }
+
+  ul {
+    margin: 0 0 $space-3;
+    padding-left: $space-5;
+    list-style: disc;
+  }
+
+  li {
+    margin-bottom: $space-1;
+  }
+
+  a {
+    color: $color-primary;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  small {
+    display: block;
+    margin-top: $space-8;
+    color: $color-text-mute;
+  }
+}

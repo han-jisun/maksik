@@ -1,0 +1,32 @@
+@use "variables" as *;
+
+.footer {
+  margin-inline: $space-5;
+  padding: $space-6 0 $space-8;
+  border-top: 3px double $color-rule;
+  text-align: center;
+  color: $color-text-mute;
+  font-size: $font-size-sm;
+}
+
+.links {
+  display: flex;
+  justify-content: center;
+  gap: $space-5;
+  margin-bottom: $space-2;
+
+  a {
+    padding: $space-2 0;
+    color: $color-text-sub;
+
+    &:hover {
+      color: $color-primary;
+    }
+  }
+}
+
+.copy {
+  font-family: $font-family-title;
+  font-size: $font-size-xs;
+  letter-spacing: 0.08em;
+}

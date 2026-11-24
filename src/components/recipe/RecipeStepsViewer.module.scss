@@ -1,0 +1,51 @@
+@use "variables" as *;
+@use "mixins" as *;
+
+.eyebrow {
+  @include eyebrow;
+  margin-bottom: $space-1;
+}
+
+.bar {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: $space-2;
+  margin-bottom: $space-5;
+  border-bottom: 1px solid $color-rule;
+}
+
+.heading {
+  padding-bottom: $space-2;
+  font-size: $font-size-xl;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+// 보기 방식 전환: 글자 + 밑줄
+.toggle {
+  display: inline-flex;
+  gap: $space-4;
+
+  button {
+    @include touch-target(44px);
+    margin-bottom: -1px;
+    border-bottom: 2px solid transparent;
+    font-family: $font-family-title;
+    font-size: $font-size-sm;
+    font-weight: 700;
+    color: $color-text-mute;
+    transition: color 0.15s, border-color 0.15s;
+
+    &:hover {
+      color: $color-text;
+    }
+  }
+
+  .on,
+  .on:hover {
+    border-bottom-color: $color-primary;
+    color: $color-primary;
+  }
+}

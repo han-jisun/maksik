@@ -1,0 +1,39 @@
+@use "variables" as *;
+@use "mixins" as *;
+
+.form {
+  @include card;
+  max-width: 360px;
+  margin: $space-10 auto 0;
+  padding: $space-6;
+}
+
+.title {
+  margin-bottom: $space-5;
+  font-size: $font-size-xl;
+  font-weight: 800;
+}
+
+.label {
+  display: block;
+  margin-bottom: $space-1;
+  font-size: $font-size-sm;
+  font-weight: 600;
+  color: $color-text-sub;
+}
+
+.input {
+  @include input-base;
+}
+
+.error {
+  margin-top: $space-2;
+  font-size: $font-size-sm;
+  color: $color-danger;
+}
+
+.submit {
+  @include button-primary;
+  width: 100%;
+  margin-top: $space-4;
+}

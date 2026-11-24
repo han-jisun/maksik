@@ -1,0 +1,66 @@
+@use "variables" as *;
+@use "mixins" as *;
+
+.section {
+  margin-top: $space-12;
+}
+
+.coupang {
+  margin-bottom: $space-8;
+}
+
+.eyebrow {
+  @include eyebrow;
+  margin-bottom: $space-1;
+}
+
+.heading {
+  @include section-heading;
+  font-size: $font-size-lg;
+}
+
+.product {
+  display: flex;
+  align-items: center;
+  gap: $space-3;
+  min-height: 60px;
+  padding: $space-2 0;
+  border-bottom: 1px solid $color-border;
+
+  &:hover .cta {
+    color: $color-primary;
+    border-bottom-color: $color-primary;
+  }
+}
+
+.thumb {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: $radius-sm;
+  object-fit: cover;
+}
+
+.name {
+  @include ellipsis(2);
+  flex: 1;
+  min-width: 0;
+  font-weight: 700;
+}
+
+.cta {
+  flex-shrink: 0;
+  border-bottom: 1px solid $color-text;
+  font-family: $font-family-title;
+  font-size: $font-size-xs;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.disclosure {
+  margin-top: $space-3;
+  font-size: $font-size-xs;
+  line-height: 1.6;
+  color: $color-text-mute;
+}

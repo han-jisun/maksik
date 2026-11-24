@@ -1,0 +1,23 @@
+@use "variables" as *;
+@use "mixins" as *;
+
+.title {
+  margin-bottom: $space-4;
+  font-size: $font-size-2xl;
+  font-weight: 900;
+  text-align: center;
+}
+
+.tabs {
+  margin-top: $space-5;
+}
+
+.count {
+  margin: $space-5 0 $space-4;
+  font-size: $font-size-sm;
+  color: $color-text-sub;
+
+  strong {
+    color: $color-text;
+  }
+}

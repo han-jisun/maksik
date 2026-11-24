@@ -1,0 +1,12 @@
+@use "variables" as *;
+@use "mixins" as *;
+
+.shell {
+  min-height: 100dvh;
+  background: #f7f5f2;
+}
+
+.main {
+  @include container($admin-max-width);
+  padding-block: $space-5 $space-10;
+}

@@ -1,0 +1,43 @@
+@use "variables" as *;
+@use "mixins" as *;
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: $color-text;
+  color: #fff;
+}
+
+.inner {
+  @include container($admin-max-width);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: $header-height;
+}
+
+.logo {
+  font-family: $font-family-title;
+  font-weight: 800;
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  gap: $space-1;
+  font-size: $font-size-sm;
+
+  a,
+  button {
+    @include touch-target;
+    display: inline-flex;
+    align-items: center;
+    padding: 0 $space-2;
+    color: rgba(#fff, 0.8);
+
+    &:hover {
+      color: #fff;
+    }
+  }
+}

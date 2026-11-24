@@ -1,0 +1,22 @@
+@use "variables" as *;
+@use "mixins" as *;
+
+.section {
+  margin-top: $space-10;
+}
+
+.eyebrow {
+  @include eyebrow;
+  margin-bottom: $space-1;
+}
+
+.heading {
+  @include section-heading;
+  margin-bottom: $space-4;
+}
+
+.sub {
+  margin: (-$space-2) 0 $space-4;
+  font-size: $font-size-sm;
+  color: $color-text-sub;
+}

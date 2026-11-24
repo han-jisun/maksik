@@ -1,0 +1,43 @@
+@use "sass:color";
+@use "variables" as *;
+
+// 책에 붙인 사진처럼: 각진 모서리, 옅은 종이색 바탕
+.frame {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  border-radius: $radius-sm;
+  background: #ebe3d3;
+}
+
+.simple {
+  background: color.mix($color-cat-simple, $color-bg, 18%);
+}
+
+.special {
+  background: color.mix($color-cat-special, $color-bg, 14%);
+}
+
+.seasonal {
+  background: color.mix($color-cat-seasonal, $color-bg, 18%);
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+// 사진이 없을 때: 안쪽에 가는 테두리를 두른 빈 액자
+.placeholder {
+  position: absolute;
+  inset: $space-2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba($color-rule, 0.18);
+  font-family: $font-family-title;
+  font-size: 0.6875rem;
+  letter-spacing: 0.2em;
+  color: rgba($color-rule, 0.4);
+}

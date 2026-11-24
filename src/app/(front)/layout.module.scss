@@ -1,0 +1,21 @@
+@use "variables" as *;
+@use "mixins" as *;
+
+// PC 접속 시에도 중앙 정렬된 모바일 뷰로 보이도록 합니다. (책 한 쪽처럼)
+.shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  max-width: $layout-max-width;
+  margin-inline: auto;
+  background: $color-bg;
+
+  @include desktop {
+    border-inline: 1px solid $color-border;
+  }
+}
+
+.main {
+  flex: 1;
+  padding: $space-6 $space-5 $space-12;
+}

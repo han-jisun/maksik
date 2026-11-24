@@ -1,0 +1,42 @@
+@use "variables" as *;
+@use "mixins" as *;
+
+// 목차의 장(章) 구분처럼: 글자만, 선택된 장에 밑줄
+.tabs {
+  display: flex;
+  gap: $space-5;
+  margin-inline: -$space-5;
+  padding-inline: $space-5;
+  border-bottom: 1px solid $color-border;
+  overflow-x: auto;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.tab {
+  @include touch-target(44px);
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  margin-bottom: -1px;
+  border-bottom: 2px solid transparent;
+  font-family: $font-family-title;
+  font-size: $font-size-md;
+  font-weight: 700;
+  color: $color-text-mute;
+  white-space: nowrap;
+  transition: color 0.15s, border-color 0.15s;
+
+  &:hover {
+    color: $color-text;
+  }
+}
+
+.active,
+.active:hover {
+  border-bottom-color: $color-primary;
+  color: $color-text;
+}

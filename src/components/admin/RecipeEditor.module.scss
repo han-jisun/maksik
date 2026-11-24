@@ -1,0 +1,225 @@
+@use "variables" as *;
+@use "mixins" as *;
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: $space-4;
+
+  input[type="text"],
+  input[type="url"],
+  input[type="number"],
+  select,
+  textarea {
+    @include input-base;
+  }
+
+  textarea {
+    resize: vertical;
+    line-height: 1.5;
+  }
+}
+
+.top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $space-3;
+}
+
+.title {
+  font-size: $font-size-xl;
+  font-weight: 800;
+}
+
+.back {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-size: $font-size-sm;
+  color: $color-text-sub;
+
+  &:hover {
+    color: $color-primary;
+  }
+}
+
+.group {
+  @include card;
+  min-width: 0;
+  margin: 0;
+  padding: $space-4;
+
+  legend {
+    float: left;
+    width: 100%;
+    margin-bottom: $space-3;
+    padding: 0;
+    font-size: $font-size-lg;
+    font-weight: 800;
+
+    // float 로 띄운 legend 뒤 내용이 옆으로 붙지 않게 합니다.
+    & + * {
+      clear: both;
+    }
+  }
+}
+
+.field {
+  display: block;
+  margin-bottom: $space-3;
+
+  > span {
+    display: block;
+    margin-bottom: $space-1;
+    font-size: $font-size-sm;
+    font-weight: 600;
+    color: $color-text-sub;
+  }
+}
+
+.cols {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 $space-3;
+
+  @include desktop {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.help {
+  margin-bottom: $space-3;
+  font-size: $font-size-sm;
+  color: $color-text-sub;
+}
+
+.rows {
+  display: flex;
+  flex-direction: column;
+  gap: $space-2;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr) 44px;
+  gap: $space-2;
+}
+
+.product {
+  display: grid;
+  gap: $space-2;
+  padding: $space-3;
+  border: 1px solid $color-border;
+  border-radius: $radius-md;
+
+  @include desktop {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 2fr) minmax(0, 2fr) auto;
+    align-items: center;
+  }
+}
+
+.remove {
+  @include button-ghost;
+  padding: 0 $space-2;
+  font-size: $font-size-sm;
+  color: $color-danger;
+
+  &:hover:not(:disabled) {
+    border-color: $color-danger;
+    color: $color-danger;
+  }
+}
+
+.add {
+  @include button-ghost;
+  width: 100%;
+  margin-top: $space-3;
+  border-style: dashed;
+}
+
+.steps {
+  display: flex;
+  flex-direction: column;
+  gap: $space-3;
+}
+
+.step {
+  padding: $space-3;
+  border: 1px solid $color-border;
+  border-radius: $radius-md;
+  background: $color-bg;
+
+  .field:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.stepHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $space-2;
+
+  strong {
+    color: $color-primary;
+    font-size: $font-size-sm;
+    letter-spacing: 0.04em;
+  }
+}
+
+.stepTools {
+  display: flex;
+  gap: $space-1;
+
+  button {
+    @include button-ghost;
+    min-width: 40px;
+    min-height: 40px;
+    padding: 0 $space-2;
+    font-size: $font-size-sm;
+  }
+
+  .remove {
+    color: $color-danger;
+  }
+}
+
+.check {
+  display: flex;
+  align-items: center;
+  gap: $space-2;
+  min-height: 44px;
+  cursor: pointer;
+
+  input {
+    width: 20px;
+    height: 20px;
+    accent-color: $color-primary;
+  }
+}
+
+.footer {
+  position: sticky;
+  bottom: 0;
+  margin-inline: -$space-4;
+  padding: $space-3 $space-4;
+  background: rgba(#f7f5f2, 0.95);
+  backdrop-filter: blur(6px);
+  border-top: 1px solid $color-border;
+}
+
+.submit {
+  @include button-primary;
+  width: 100%;
+  min-height: 52px;
+}
+
+.error {
+  margin-bottom: $space-2;
+  padding: $space-2 $space-3;
+  border-radius: $radius-sm;
+  background: #fff5f5;
+  color: $color-danger;
+  font-size: $font-size-sm;
+}

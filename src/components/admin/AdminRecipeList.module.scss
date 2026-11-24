@@ -1,0 +1,118 @@
+@use "variables" as *;
+@use "mixins" as *;
+
+.top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $space-3;
+  margin-bottom: $space-4;
+}
+
+.title {
+  font-size: $font-size-xl;
+  font-weight: 800;
+
+  span {
+    margin-left: $space-2;
+    color: $color-primary;
+  }
+}
+
+.write {
+  @include button-primary;
+}
+
+.error {
+  margin-bottom: $space-3;
+  padding: $space-3;
+  border-radius: $radius-md;
+  background: #fff5f5;
+  color: $color-danger;
+  font-size: $font-size-sm;
+}
+
+.empty {
+  padding: $space-10 0;
+  text-align: center;
+  color: $color-text-mute;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: $space-3;
+}
+
+.item {
+  @include card;
+  padding: $space-4;
+
+  @include desktop {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: $space-4;
+  }
+}
+
+.info {
+  min-width: 0;
+}
+
+.badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $space-2;
+  font-size: $font-size-xs;
+  font-weight: 700;
+  color: $color-text-sub;
+}
+
+.public {
+  color: $color-accent;
+}
+
+.private {
+  color: $color-text-mute;
+}
+
+.name {
+  margin-top: 2px;
+  font-size: $font-size-md;
+  font-weight: 700;
+}
+
+.meta {
+  font-size: $font-size-sm;
+  color: $color-text-mute;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+  gap: $space-2;
+  margin-top: $space-3;
+
+  @include desktop {
+    margin-top: 0;
+  }
+
+  a,
+  button {
+    @include button-ghost;
+    min-height: 40px;
+    padding: 0 $space-3;
+    font-size: $font-size-sm;
+  }
+
+  .danger {
+    color: $color-danger;
+
+    &:hover:not(:disabled) {
+      border-color: $color-danger;
+      color: $color-danger;
+    }
+  }
+}

@@ -1,0 +1,29 @@
+// 네이버 나눔 글꼴 (https://hangeul.naver.com/font)
+// 네이버가 제공하는 CSS 는 굵기마다 font-family 이름이 달라서,
+// 같은 파일을 굵기(font-weight)로 고를 수 있도록 하나의 패밀리로 다시 묶었습니다.
+$nanum-cdn: "https://hangeul.pstatic.net/hangeul_static/webfont";
+
+@mixin nanum-face($family, $weight, $path) {
+  @font-face {
+    font-family: $family;
+    font-weight: $weight;
+    font-style: normal;
+    font-display: swap;
+    src: url("#{$nanum-cdn}/#{$path}.woff") format("woff"),
+      url("#{$nanum-cdn}/#{$path}.ttf") format("truetype");
+  }
+}
+
+// 나눔스퀘어 네오: 로고, 타이틀, 제목
+@include nanum-face("NanumSquareNeo", 400, "NanumSquareNeo/NanumSquareNeoTTF-bRg");
+@include nanum-face("NanumSquareNeo", 700, "NanumSquareNeo/NanumSquareNeoTTF-cBd");
+@include nanum-face("NanumSquareNeo", 800, "NanumSquareNeo/NanumSquareNeoTTF-dEb");
+@include nanum-face("NanumSquareNeo", 900, "NanumSquareNeo/NanumSquareNeoTTF-eHv");
+
+// 나눔손글씨 펜: 작은 표제, 분류 이름 등 손글씨 장식
+@include nanum-face("NanumPen", 400, "NanumBrush/NanumPen");
+
+// 나눔고딕: 레시피 상세 본문
+@include nanum-face("NanumGothic", 400, "NanumGothic/NanumGothic");
+@include nanum-face("NanumGothic", 700, "NanumGothic/NanumGothicBold");
+@include nanum-face("NanumGothic", 800, "NanumGothic/NanumGothicExtraBold");

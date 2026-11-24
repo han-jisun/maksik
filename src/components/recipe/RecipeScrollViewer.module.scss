@@ -1,0 +1,60 @@
+@use "variables" as *;
+@use "mixins" as *;
+
+// 번호가 왼쪽 여백에 놓인 본문 단락
+.list {
+  display: flex;
+  flex-direction: column;
+}
+
+.step {
+  display: flex;
+  gap: $space-4;
+  padding: $space-5 0;
+  border-bottom: 1px solid $color-border;
+  scroll-margin-top: $space-4;
+
+  &:first-child {
+    padding-top: 0;
+  }
+}
+
+.number {
+  flex-shrink: 0;
+  width: 2.25rem;
+  font-family: $font-family-title;
+  font-size: 1.75rem;
+  font-weight: 900;
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+  color: $color-primary;
+  font-variant-numeric: tabular-nums;
+}
+
+.body {
+  flex: 1;
+  min-width: 0;
+}
+
+.image {
+  margin-bottom: $space-3;
+}
+
+.description {
+  font-size: $font-size-lg;
+  line-height: 1.75;
+}
+
+.tip {
+  margin-top: $space-3;
+  padding-left: $space-3;
+  border-left: 2px solid $color-primary;
+  color: $color-text-sub;
+  font-size: $font-size-sm;
+  line-height: 1.7;
+
+  strong {
+    @include eyebrow;
+    margin-right: $space-2;
+  }
+}

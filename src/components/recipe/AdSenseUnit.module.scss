@@ -1,0 +1,19 @@
+@use "variables" as *;
+
+.unit {
+  min-height: 100px;
+  overflow: hidden;
+}
+
+.placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100px;
+  padding: $space-4;
+  border: 1px dashed $color-border;
+  border-radius: $radius-md;
+  color: $color-text-mute;
+  font-size: $font-size-sm;
+  text-align: center;
+}

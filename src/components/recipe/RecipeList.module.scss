@@ -1,0 +1,89 @@
+@use "variables" as *;
+@use "mixins" as *;
+
+// 모바일 2열 그리드 (아주 좁은 화면에서는 1열)
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: $space-8 $space-4;
+
+  @media (min-width: 340px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.row {
+  display: flex;
+  gap: $space-4;
+  margin-inline: -$space-5;
+  padding: 0 $space-5 $space-2;
+  // 프리 모드: 특정 위치에 달라붙지 않고 민 만큼 자유롭게 움직입니다.
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  .item {
+    flex: 0 0 58%;
+    max-width: 240px;
+  }
+}
+
+.item {
+  min-width: 0;
+}
+
+.card {
+  display: block;
+
+  &:hover .title {
+    color: $color-primary;
+  }
+}
+
+.body {
+  padding-top: $space-3;
+}
+
+.badge {
+  @include eyebrow;
+  display: inline-block;
+  font-size: 1.1875rem;
+}
+
+.simple {
+  color: $color-cat-simple;
+}
+
+.special {
+  color: $color-cat-special;
+}
+
+.seasonal {
+  color: $color-cat-seasonal;
+}
+
+.title {
+  @include ellipsis(2);
+  margin-top: 2px;
+  font-size: $font-size-md;
+  font-weight: 800;
+  line-height: 1.4;
+  transition: color 0.15s;
+}
+
+.meta {
+  margin-top: $space-1;
+  font-size: $font-size-xs;
+  color: $color-text-sub;
+}
+
+.empty {
+  padding: $space-10 $space-4;
+  text-align: center;
+  color: $color-text-mute;
+}

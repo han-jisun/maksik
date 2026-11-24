@@ -1,0 +1,152 @@
+@use "variables" as *;
+@use "mixins" as *;
+
+// 책의 한 쪽처럼: 종이색 면, 가는 테두리, 아래에 쪽 번호
+.viewer {
+  background: $color-surface;
+  border: 1px solid $color-rule;
+  border-radius: $radius-sm;
+  overflow: hidden;
+}
+
+.progress {
+  display: flex;
+  gap: 2px;
+
+  span {
+    flex: 1;
+    height: 3px;
+    background: $color-border;
+    transition: background-color 0.2s;
+  }
+
+  .done {
+    background: $color-primary;
+  }
+}
+
+.track {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  &:focus-visible {
+    outline-offset: -2px;
+  }
+}
+
+.slide {
+  flex: 0 0 100%;
+  min-width: 0;
+  min-height: 280px;
+  padding: $space-6 $space-5;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+
+.label {
+  display: flex;
+  align-items: baseline;
+  gap: $space-2;
+  margin-bottom: $space-4;
+
+  // 사진이 있을 때는 사진 아래에 숫자가 옵니다.
+  &:not(:first-child) {
+    margin-top: $space-5;
+  }
+}
+
+// 큼직한 단계 숫자
+.number {
+  font-family: $font-family-title;
+  font-size: 3rem;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: $color-primary;
+  font-variant-numeric: tabular-nums;
+}
+
+.of {
+  @include eyebrow;
+  color: $color-text-mute;
+}
+
+// 조리 중 멀리서도 읽히도록 본문을 크게 잡습니다.
+.description {
+  font-size: $font-size-xl;
+  font-weight: 700;
+  line-height: 1.65;
+}
+
+.tip {
+  margin-top: $space-5;
+  padding-left: $space-3;
+  border-left: 2px solid $color-primary;
+  color: $color-text-sub;
+  font-size: $font-size-md;
+  line-height: 1.7;
+
+  strong {
+    @include eyebrow;
+    display: block;
+    margin-bottom: 2px;
+  }
+}
+
+.controls {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  border-top: 1px solid $color-rule;
+}
+
+.prev,
+.next {
+  min-height: 56px;
+  font-family: $font-family-title;
+  font-size: $font-size-md;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: $color-text;
+  transition: background-color 0.15s, color 0.15s;
+
+  &:disabled {
+    color: $color-border;
+    cursor: not-allowed;
+  }
+
+  &:hover:not(:disabled) {
+    background: $color-primary-soft;
+    color: $color-primary;
+  }
+}
+
+.next:not(:disabled) {
+  background: $color-header;
+  color: $color-header-text;
+
+  &:hover {
+    background: $color-primary;
+    color: $color-bg;
+  }
+}
+
+// 쪽 번호
+.counter {
+  min-width: 5em;
+  padding: 0 $space-3;
+  text-align: center;
+  font-family: $font-family-title;
+  font-size: $font-size-sm;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: $color-text-sub;
+  font-variant-numeric: tabular-nums;
+}
