@@ -1,36 +1,23 @@
 @use "variables" as *;
 @use "mixins" as *;
 
-.eyebrow {
-  @include eyebrow;
-  margin-bottom: $space-1;
-}
-
-.bar {
+// 보기 방식 전환: 뒤로가기 아이콘과 같은 줄의 오른쪽에 둡니다.
+.modeBar {
   display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: $space-2;
-  margin-bottom: $space-5;
-  border-bottom: 1px solid $color-rule;
+  justify-content: flex-end;
+  height: 44px;
+  margin-top: -40px;
+  margin-bottom: $space-2;
+  pointer-events: none;
 }
 
-.heading {
-  padding-bottom: $space-2;
-  font-size: $font-size-xl;
-  font-weight: 800;
-  letter-spacing: -0.01em;
-}
-
-// 보기 방식 전환: 글자 + 밑줄
 .toggle {
   display: inline-flex;
   gap: $space-4;
+  pointer-events: auto;
 
   button {
     @include touch-target(44px);
-    margin-bottom: -1px;
     border-bottom: 2px solid transparent;
     font-family: $font-family-title;
     font-size: $font-size-sm;
@@ -48,4 +35,19 @@
     border-bottom-color: $color-primary;
     color: $color-primary;
   }
+}
+
+// ---------- 한눈에 보기 ----------
+.section {
+  margin-top: $space-12;
+}
+
+.eyebrow {
+  @include eyebrow;
+  margin-bottom: $space-1;
+}
+
+.heading {
+  @include section-heading;
+  margin-bottom: $space-5;
 }

@@ -4,7 +4,7 @@ import { Suspense } from "react";
 import HomeLink from "@/components/common/HomeLink";
 import AdSection from "@/components/recipe/AdSection";
 import RecipeImage from "@/components/recipe/RecipeImage";
-import RecipeStepsViewer from "@/components/recipe/RecipeStepsViewer";
+import RecipeView from "@/components/recipe/RecipeView";
 import { categoryLabel } from "@/lib/categories";
 import { getPublishedRecipe, getPublishedRecipes } from "@/lib/recipes";
 import { absoluteUrl, formatCookTime, SITE_NAME } from "@/lib/site";
@@ -113,64 +113,68 @@ async function RecipeContent({ params }: Props) {
         }}
       />
 
-      {/* 책의 장 첫머리처럼: 분류 → 제목 → 소개 → 사진 → 요약 */}
-      <header className={styles.header}>
-        <span className={`${styles.badge} ${styles[recipe.category]}`}>
-          {categoryLabel(recipe.category)}
-        </span>
-        <h1 className={styles.title}>{recipe.title}</h1>
-        {recipe.description ? (
-          <p className={styles.description}>{recipe.description}</p>
-        ) : null}
 
-        <RecipeImage
-          src={recipe.thumbnailUrl}
-          alt={recipe.title}
-          category={recipe.category}
-          priority
-          className={styles.hero}
-        />
+      <RecipeView
+        steps={recipe.steps}
+        category={recipe.category}
+        cover={
+          // 책의 장 첫머리처럼: 분류 → 제목 → 소개 → 사진 → 요약
+          <header className={styles.header} data-recipe-cover>
+            <span className={`${styles.badge} ${styles[recipe.category]}`}>
+              {categoryLabel(recipe.category)}
+            </span>
+            <h1 className={styles.title}>{recipe.title}</h1>
+            {recipe.description ? (
+              <p className={styles.description}>{recipe.description}</p>
+            ) : null}
 
-        <dl className={styles.meta}>
-          <div>
-            <dt>소요 시간</dt>
-            <dd>{formatCookTime(recipe.cookTimeMinutes)}</dd>
-          </div>
-          <div>
-            <dt>난이도</dt>
-            <dd>{recipe.difficulty}</dd>
-          </div>
-          <div>
-            <dt>분량</dt>
-            <dd>{recipe.servings}인분</dd>
-          </div>
-        </dl>
-      </header>
+            {/* data-cover-photo: 카드 보기에서 사진을 카드 맨 위에 꽉 차게 올리는 데 씁니다. */}
+            <div className={styles.hero} data-cover-photo>
+              <RecipeImage
+                src={recipe.thumbnailUrl}
+                alt={recipe.title}
+                category={recipe.category}
+                priority
+              />
+            </div>
 
-      <section className={styles.section} aria-labelledby="ingredients">
-        <p className={styles.eyebrow}>Ingredients</p>
-        <h2 id="ingredients" className={styles.heading}>
-          재료
-          <span className={styles.servings}>{recipe.servings}인분 기준</span>
-        </h2>
-        <ul className={styles.ingredients}>
-          {recipe.ingredients.map((item, index) => (
-            <li key={`${item.name}-${index}`}>
-              <span>{item.name}</span>
-              <span className={styles.leader} aria-hidden="true" />
-              <span className={styles.amount}>{item.amount}</span>
-            </li>
-          ))}
-        </ul>
-      </section>
-
-      <section className={styles.section} aria-labelledby="steps">
-        <RecipeStepsViewer
-          steps={recipe.steps}
-          category={recipe.category}
-          headingId="steps"
-        />
-      </section>
+            <dl className={styles.meta}>
+              <div>
+                <dt>소요 시간</dt>
+                <dd>{formatCookTime(recipe.cookTimeMinutes)}</dd>
+              </div>
+              <div>
+                <dt>난이도</dt>
+                <dd>{recipe.difficulty}</dd>
+              </div>
+              <div>
+                <dt>분량</dt>
+                <dd>{recipe.servings}인분</dd>
+              </div>
+            </dl>
+          </header>
+        }
+        ingredients={
+          <section aria-labelledby="ingredients">
+            <p className={styles.eyebrow}>Ingredients</p>
+            <h2 id="ingredients" className={styles.heading}>
+              재료
+              <span className={styles.servings}>
+                {recipe.servings}인분 기준
+              </span>
+            </h2>
+            <ul className={styles.ingredients}>
+              {recipe.ingredients.map((item, index) => (
+                <li key={`${item.name}-${index}`}>
+                  <span>{item.name}</span>
+                  <span className={styles.leader} aria-hidden="true" />
+                  <span className={styles.amount}>{item.amount}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        }
+      />
 
       <AdSection products={recipe.coupangProducts} />
     </article>

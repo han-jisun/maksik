@@ -4,7 +4,7 @@ import { useSyncExternalStore } from "react";
 import type { CategoryId, RecipeStep } from "@/lib/types";
 import RecipeCardViewer from "./RecipeCardViewer";
 import RecipeScrollViewer from "./RecipeScrollViewer";
-import styles from "./RecipeStepsViewer.module.scss";
+import styles from "./RecipeView.module.scss";
 
 export type ViewMode = "card" | "scroll";
 
@@ -42,21 +42,25 @@ function writeMode(mode: ViewMode) {
 }
 
 interface Props {
+  /** 첫 화면: 분류, 제목, 소개, 사진, 요약 (서버에서 렌더링) */
+  cover: React.ReactNode;
+  /** 재료표 (서버에서 렌더링) */
+  ingredients: React.ReactNode;
   steps: RecipeStep[];
   category: CategoryId;
-  headingId: string;
 }
 
-export default function RecipeStepsViewer({ steps, category, headingId }: Props) {
+/**
+ * 레시피 본문 전체의 보기 방식 전환.
+ * - 카드로 보기: 첫 화면 → 재료 → 조리 단계를 모두 한 장씩 넘겨 봅니다.
+ * - 한눈에 보기: 같은 내용을 한 페이지에 세로로 나열합니다.
+ */
+export default function RecipeView({ cover, ingredients, steps, category }: Props) {
   const mode = useSyncExternalStore(subscribe, readMode, () => DEFAULT_MODE);
 
   return (
     <>
-      <p className={styles.eyebrow}>Method</p>
-      <div className={styles.bar}>
-        <h2 id={headingId} className={styles.heading}>
-          조리 과정
-        </h2>
+      <div className={styles.modeBar}>
         <div className={styles.toggle} role="group" aria-label="보기 방식">
           <button
             type="button"
@@ -78,9 +82,26 @@ export default function RecipeStepsViewer({ steps, category, headingId }: Props)
       </div>
 
       {mode === "card" ? (
-        <RecipeCardViewer steps={steps} category={category} />
+        <RecipeCardViewer
+          steps={steps}
+          category={category}
+          leading={[
+            { key: "cover", label: "첫 화면", node: cover },
+            { key: "ingredients", label: "재료", node: ingredients },
+          ]}
+        />
       ) : (
-        <RecipeScrollViewer steps={steps} category={category} />
+        <>
+          {cover}
+          <div className={styles.section}>{ingredients}</div>
+          <section className={styles.section} aria-labelledby="steps">
+            <p className={styles.eyebrow}>Method</p>
+            <h2 id="steps" className={styles.heading}>
+              조리 과정
+            </h2>
+            <RecipeScrollViewer steps={steps} category={category} />
+          </section>
+        </>
       )}
     </>
   );

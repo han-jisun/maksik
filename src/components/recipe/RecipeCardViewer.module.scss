@@ -2,7 +2,12 @@
 @use "mixins" as *;
 
 // 책의 한 쪽처럼: 종이색 면, 가는 테두리, 아래에 쪽 번호
+// 화면 높이에 맞춘 한 장. 내용이 길면(재료가 많을 때 등) 카드 안에서 세로로 스크롤합니다.
 .viewer {
+  display: flex;
+  flex-direction: column;
+  height: min(calc(100dvh - 88px), 780px);
+  min-height: 420px;
   background: $color-surface;
   border: 1px solid $color-rule;
   border-radius: $radius-sm;
@@ -26,6 +31,8 @@
 }
 
 .track {
+  flex: 1;
+  min-height: 0;
   display: flex;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
@@ -44,10 +51,39 @@
 .slide {
   flex: 0 0 100%;
   min-width: 0;
-  min-height: 280px;
+  display: flex;
+  flex-direction: column;
   padding: $space-6 $space-5;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
   scroll-snap-align: start;
   scroll-snap-stop: always;
+}
+
+// 내용이 짧으면 카드 가운데에, 길면 위에서부터 놓입니다.
+.inner {
+  width: 100%;
+  margin-block: auto;
+}
+
+// ---------- 첫 화면 카드 ----------
+// 요리책의 사진 쪽처럼: 사진을 카드 맨 위에 여백 없이 크게, 제목과 소개는 그 아래에.
+.inner:has([data-recipe-cover]) {
+  margin-block: 0 auto;
+}
+
+.slide [data-recipe-cover] {
+  display: flex;
+  flex-direction: column;
+}
+
+.slide [data-cover-photo] {
+  order: -1;
+  margin: (-$space-6) (-$space-5) $space-6;
+
+  > div {
+    border-radius: 0;
+  }
 }
 
 .label {
@@ -100,53 +136,42 @@
   }
 }
 
-.controls {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
+
+// 쪽 번호와 양옆 화살표: 책처럼 카드 아래 가운데에 작게
+.pager {
+  flex-shrink: 0;
+  display: flex;
   align-items: center;
-  border-top: 1px solid $color-rule;
+  justify-content: center;
+  gap: $space-1;
+  padding-bottom: $space-1;
 }
 
-.prev,
-.next {
-  min-height: 56px;
-  font-family: $font-family-title;
-  font-size: $font-size-md;
-  font-weight: 800;
-  letter-spacing: 0.04em;
-  color: $color-text;
-  transition: background-color 0.15s, color 0.15s;
+.arrow {
+  @include touch-target;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: $color-text-sub;
+  transition: color 0.15s;
+
+  &:hover:not(:disabled) {
+    color: $color-primary;
+  }
 
   &:disabled {
     color: $color-border;
-    cursor: not-allowed;
-  }
-
-  &:hover:not(:disabled) {
-    background: $color-primary-soft;
-    color: $color-primary;
+    cursor: default;
   }
 }
 
-.next:not(:disabled) {
-  background: $color-header;
-  color: $color-header-text;
-
-  &:hover {
-    background: $color-primary;
-    color: $color-bg;
-  }
-}
-
-// 쪽 번호
 .counter {
-  min-width: 5em;
-  padding: 0 $space-3;
+  min-width: 4em;
   text-align: center;
   font-family: $font-family-title;
-  font-size: $font-size-sm;
+  font-size: $font-size-xs;
   font-weight: 700;
-  letter-spacing: 0.1em;
-  color: $color-text-sub;
+  letter-spacing: 0.14em;
+  color: $color-text-mute;
   font-variant-numeric: tabular-nums;
 }

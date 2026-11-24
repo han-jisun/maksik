@@ -41,7 +41,6 @@
 
 // ---------- 장 첫머리 ----------
 .header {
-  padding-top: $space-4;
   text-align: center;
 }
 
@@ -63,7 +62,7 @@
 }
 
 .title {
-  margin-top: $space-3;
+  margin-top: $space-1;
   font-size: $font-size-3xl;
   font-weight: 900;
   letter-spacing: -0.02em;

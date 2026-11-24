@@ -2,18 +2,16 @@
 @use "mixins" as *;
 
 .nav {
-  margin: (-$space-3) 0 $space-3;
+  // 아이콘 터치 영역(44px)이 위아래 여백을 차지하지 않도록 당겨 둡니다.
+  margin: (-$space-4) 0 (-$space-1) (-$space-2);
 }
 
 .link {
   @include touch-target;
   display: inline-flex;
   align-items: center;
-  gap: $space-1;
-  font-family: $font-family-hand;
-  font-size: 1.375rem;
-  line-height: 1;
-  color: $color-text-sub;
+  justify-content: center;
+  color: $color-text;
 
   &:hover {
     color: $color-primary;
