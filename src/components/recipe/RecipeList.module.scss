@@ -49,6 +49,12 @@
   padding-top: $space-3;
 }
 
+.badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 $space-2;
+}
+
 .badge {
   @include eyebrow;
   display: inline-block;

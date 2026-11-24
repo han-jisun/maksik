@@ -29,3 +29,14 @@ export function isCategoryId(value: unknown): value is CategoryId {
 export function categoryLabel(id: CategoryId): string {
   return CATEGORIES.find((c) => c.id === id)?.label ?? id;
 }
+
+/** 다중 카테고리가 없으면 대표 category 를 배열로 돌려줍니다. */
+export function getRecipeCategories(recipe: {
+  category: CategoryId;
+  categories?: CategoryId[];
+}): CategoryId[] {
+  if (recipe.categories && recipe.categories.length > 0) {
+    return recipe.categories;
+  }
+  return [recipe.category];
+}

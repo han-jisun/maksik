@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
-import { categoryLabel } from "@/lib/categories";
+import { categoryLabel, getRecipeCategories } from "@/lib/categories";
 import type { Recipe } from "@/lib/types";
 import styles from "./AdminRecipeList.module.scss";
 
@@ -95,7 +95,7 @@ export default function AdminRecipeList() {
           레시피 목록
           {recipes ? <span>{recipes.length}</span> : null}
         </h1>
-        <Link href="/admin/write" className={styles.write}>
+        <Link href="/admin" className={styles.write}>
           + 새 레시피
         </Link>
       </div>
@@ -125,7 +125,9 @@ export default function AdminRecipeList() {
                     >
                       {recipe.published ? "공개" : "비공개"}
                     </span>
-                    <span>{categoryLabel(recipe.category)}</span>
+                    {getRecipeCategories(recipe).map((cat) => (
+                      <span key={cat}>{categoryLabel(cat)}</span>
+                    ))}
                     {recipe.recommended ? <span>★ 추천</span> : null}
                   </p>
                   <h2 className={styles.name}>{recipe.title}</h2>
@@ -152,7 +154,7 @@ export default function AdminRecipeList() {
                   >
                     {recipe.recommended ? "추천 해제" : "추천"}
                   </button>
-                  <Link href={`/admin/write?id=${recipe.id}`}>수정</Link>
+                  <Link href={`/admin?id=${recipe.id}`}>수정</Link>
                   {recipe.published ? (
                     <Link href={`/recipe/${recipe.id}`} target="_blank">
                       보기

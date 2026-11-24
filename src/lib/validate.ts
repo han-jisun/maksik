@@ -52,16 +52,28 @@ export function parseRecipeInput(body: unknown): Result<RecipeInput> {
   const title = str(b.title, 100);
   if (!title) return { ok: false, error: "제목을 입력해 주세요." };
 
-  if (!isCategoryId(b.category)) {
-    return { ok: false, error: "카테고리를 선택해 주세요." };
+  const rawCategories = Array.isArray(b.categories)
+    ? Array.from(new Set(b.categories.filter(isCategoryId)))
+    : isCategoryId(b.category)
+      ? [b.category]
+      : [];
+
+  if (rawCategories.length === 0) {
+    return { ok: false, error: "카테고리를 하나 이상 선택해 주세요." };
   }
 
-  const cookTimeMinutes = int(b.cookTimeMinutes, 1, 24 * 60);
+  const cookTimeMinutes =
+    b.cookTimeMinutes === undefined || b.cookTimeMinutes === ""
+      ? 15
+      : int(b.cookTimeMinutes, 1, 24 * 60);
   if (cookTimeMinutes === null) {
     return { ok: false, error: "조리 시간을 1분 이상으로 입력해 주세요." };
   }
 
-  const servings = int(b.servings, 1, 100);
+  const servings =
+    b.servings === undefined || b.servings === ""
+      ? 2
+      : int(b.servings, 1, 100);
   if (servings === null) {
     return { ok: false, error: "인분 수를 1 이상으로 입력해 주세요." };
   }
@@ -71,7 +83,11 @@ export function parseRecipeInput(body: unknown): Result<RecipeInput> {
     : "쉬움";
 
   const ingredients: Ingredient[] = list(b.ingredients)
-    .map((i) => ({ name: str(i.name, 100), amount: str(i.amount, 100) }))
+    .map((i) => ({
+      name: str(i.name, 100),
+      amount: str(i.amount, 100),
+      ...(i.required === true ? { required: true } : {}),
+    }))
     .filter((i) => i.name);
 
   const steps: RecipeStep[] = list(b.steps)
@@ -80,11 +96,11 @@ export function parseRecipeInput(body: unknown): Result<RecipeInput> {
       description: str(s.description),
       tip: str(s.tip, 500),
     }))
-    .filter((s) => s.description)
+    .filter((s) => s.description || s.imageUrl)
     .map((s, index) => ({ stepNumber: index + 1, ...s }));
 
   if (steps.length === 0) {
-    return { ok: false, error: "조리 과정을 한 단계 이상 입력해 주세요." };
+    return { ok: false, error: "카드를 한 장 이상 입력해 주세요." };
   }
 
   const coupangProducts: CoupangProduct[] = list(b.coupangProducts)
@@ -100,7 +116,8 @@ export function parseRecipeInput(body: unknown): Result<RecipeInput> {
     value: {
       title,
       description: str(b.description, 500),
-      category: b.category,
+      category: rawCategories[0],
+      categories: rawCategories,
       thumbnailUrl: url(b.thumbnailUrl),
       cookTimeMinutes,
       difficulty,
@@ -108,7 +125,7 @@ export function parseRecipeInput(body: unknown): Result<RecipeInput> {
       ingredients,
       steps,
       coupangProducts,
-      published: b.published === true,
+      published: b.published !== false,
       recommended: b.recommended === true,
     },
   };

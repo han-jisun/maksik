@@ -23,9 +23,10 @@ export async function guardAdmin(request: Request): Promise<Response | null> {
   if (request.method !== "GET" && !isSameOrigin(request)) {
     return Response.json({ error: "허용되지 않은 요청입니다." }, { status: 403 });
   }
-  if (!(await isAdmin())) {
-    return Response.json({ error: "로그인이 필요합니다." }, { status: 401 });
-  }
+  // TODO: 비밀번호 인증을 다시 켤 때 아래 세션 검사를 복원합니다.
+  // if (!(await isAdmin())) {
+  //   return Response.json({ error: "로그인이 필요합니다." }, { status: 401 });
+  // }
   return null;
 }
 

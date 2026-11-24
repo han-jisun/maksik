@@ -44,6 +44,13 @@
   text-align: center;
 }
 
+.badges {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0 $space-3;
+}
+
 .badge {
   @include eyebrow;
   font-size: 1.5rem;
@@ -158,6 +165,24 @@
   min-width: $space-4;
   border-bottom: 1px dotted $color-text-mute;
   transform: translateY(-4px);
+}
+
+.ingredientName {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.requiredBadge {
+  padding: 1px 6px;
+  border-radius: $radius-full;
+  background: $color-primary-soft;
+  color: $color-primary-dark;
+  font-family: $font-family-title;
+  font-size: 0.6875rem;
+  font-weight: 800;
+  line-height: 1.5;
+  white-space: nowrap;
 }
 
 .amount {

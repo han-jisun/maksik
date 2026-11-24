@@ -5,7 +5,7 @@ import HomeLink from "@/components/common/HomeLink";
 import AdSection from "@/components/recipe/AdSection";
 import RecipeImage from "@/components/recipe/RecipeImage";
 import RecipeView from "@/components/recipe/RecipeView";
-import { categoryLabel } from "@/lib/categories";
+import { categoryLabel, getRecipeCategories } from "@/lib/categories";
 import { getPublishedRecipe, getPublishedRecipes } from "@/lib/recipes";
 import { absoluteUrl, formatCookTime, SITE_NAME } from "@/lib/site";
 import type { Recipe } from "@/lib/types";
@@ -61,7 +61,7 @@ function buildJsonLd(recipe: Recipe) {
     dateModified: recipe.updatedAt,
     totalTime: `PT${recipe.cookTimeMinutes}M`,
     recipeYield: `${recipe.servings}인분`,
-    recipeCategory: categoryLabel(recipe.category),
+    recipeCategory: getRecipeCategories(recipe).map(categoryLabel).join(", "),
     recipeCuisine: "한식",
     recipeIngredient: recipe.ingredients.map((i) =>
       `${i.name} ${i.amount}`.trim(),
@@ -120,9 +120,13 @@ async function RecipeContent({ params }: Props) {
         cover={
           // 책의 장 첫머리처럼: 분류 → 제목 → 소개 → 사진 → 요약
           <header className={styles.header} data-recipe-cover>
-            <span className={`${styles.badge} ${styles[recipe.category]}`}>
-              {categoryLabel(recipe.category)}
-            </span>
+            <div className={styles.badges}>
+              {getRecipeCategories(recipe).map((cat) => (
+                <span key={cat} className={`${styles.badge} ${styles[cat]}`}>
+                  {categoryLabel(cat)}
+                </span>
+              ))}
+            </div>
             <h1 className={styles.title}>{recipe.title}</h1>
             {recipe.description ? (
               <p className={styles.description}>{recipe.description}</p>
@@ -134,6 +138,7 @@ async function RecipeContent({ params }: Props) {
                 src={recipe.thumbnailUrl}
                 alt={recipe.title}
                 category={recipe.category}
+                ratio="1/1"
                 priority
               />
             </div>
@@ -166,7 +171,12 @@ async function RecipeContent({ params }: Props) {
             <ul className={styles.ingredients}>
               {recipe.ingredients.map((item, index) => (
                 <li key={`${item.name}-${index}`}>
-                  <span>{item.name}</span>
+                  <span className={styles.ingredientName}>
+                    {item.name}
+                    {item.required ? (
+                      <span className={styles.requiredBadge}>필수</span>
+                    ) : null}
+                  </span>
                   <span className={styles.leader} aria-hidden="true" />
                   <span className={styles.amount}>{item.amount}</span>
                 </li>

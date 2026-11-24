@@ -5,6 +5,8 @@ export type Difficulty = "쉬움" | "보통" | "어려움";
 export interface Ingredient {
   name: string;
   amount: string;
+  /** 필수 재료 여부 */
+  required?: boolean;
 }
 
 export interface RecipeStep {
@@ -25,7 +27,10 @@ export interface Recipe {
   id: string;
   title: string;
   description: string;
+  /** 대표 카테고리 (categories[0] 과 동일, 기존 데이터 호환용) */
   category: CategoryId;
+  /** 다중 선택 카테고리 목록 */
+  categories?: CategoryId[];
   thumbnailUrl: string;
   cookTimeMinutes: number;
   difficulty: Difficulty;

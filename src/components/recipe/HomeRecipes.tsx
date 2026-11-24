@@ -4,7 +4,7 @@ import { useState } from "react";
 import CategoryTabs, {
   type CategoryFilter,
 } from "@/components/common/CategoryTabs";
-import { CATEGORIES } from "@/lib/categories";
+import { CATEGORIES, getRecipeCategories } from "@/lib/categories";
 import RecipeList, { type RecipeSummary } from "./RecipeList";
 import styles from "./HomeRecipes.module.scss";
 
@@ -13,7 +13,9 @@ export default function HomeRecipes({ recipes }: { recipes: RecipeSummary[] }) {
 
   const recommended = recipes.filter((r) => r.recommended);
   const filtered =
-    category === "all" ? recipes : recipes.filter((r) => r.category === category);
+    category === "all"
+      ? recipes
+      : recipes.filter((r) => getRecipeCategories(r).includes(category));
   const current = CATEGORIES.find((c) => c.id === category);
 
   return (

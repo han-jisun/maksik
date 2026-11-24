@@ -1,17 +1,24 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { CATEGORIES, DIFFICULTIES } from "@/lib/categories";
+import { DIFFICULTIES, getRecipeCategories } from "@/lib/categories";
 import type { CategoryId, Difficulty, Recipe } from "@/lib/types";
+import ImageField from "./ImageField";
 import StepEditor, { type StepDraft } from "./StepEditor";
 import styles from "./RecipeEditor.module.scss";
+
+const ADMIN_CATEGORIES: { id: CategoryId; label: string }[] = [
+  { id: "simple", label: "간단요리" },
+  { id: "special", label: "특별요리" },
+  { id: "seasonal", label: "제철요리" },
+];
 
 interface IngredientDraft {
   key: string;
   name: string;
   amount: string;
+  required: boolean;
 }
 
 interface ProductDraft {
@@ -24,7 +31,7 @@ interface ProductDraft {
 interface Draft {
   title: string;
   description: string;
-  category: CategoryId;
+  categories: CategoryId[];
   thumbnailUrl: string;
   cookTimeMinutes: string;
   difficulty: Difficulty;
@@ -44,12 +51,13 @@ const newIngredient = (): IngredientDraft => ({
   key: newKey(),
   name: "",
   amount: "",
+  required: false,
 });
-const newStep = (): StepDraft => ({
+const newStep = (initial?: Partial<Omit<StepDraft, "key">>): StepDraft => ({
   key: newKey(),
-  imageUrl: "",
-  description: "",
-  tip: "",
+  imageUrl: initial?.imageUrl ?? "",
+  description: initial?.description ?? "",
+  tip: initial?.tip ?? "",
 });
 const newProduct = (): ProductDraft => ({
   key: newKey(),
@@ -62,15 +70,15 @@ function emptyDraft(): Draft {
   return {
     title: "",
     description: "",
-    category: "simple",
+    categories: ["simple"],
     thumbnailUrl: "",
     cookTimeMinutes: "15",
     difficulty: "쉬움",
     servings: "2",
     ingredients: [newIngredient(), newIngredient()],
-    steps: [newStep()],
+    steps: [],
     coupangProducts: [],
-    published: false,
+    published: true,
     recommended: false,
   };
 }
@@ -79,12 +87,20 @@ function toDraft(recipe: Recipe): Draft {
   return {
     title: recipe.title,
     description: recipe.description,
-    category: recipe.category,
+    categories: getRecipeCategories(recipe),
     thumbnailUrl: recipe.thumbnailUrl,
     cookTimeMinutes: String(recipe.cookTimeMinutes),
     difficulty: recipe.difficulty,
     servings: String(recipe.servings),
-    ingredients: recipe.ingredients.map((i) => ({ key: newKey(), ...i })),
+    ingredients:
+      recipe.ingredients.length > 0
+        ? recipe.ingredients.map((i) => ({
+            key: newKey(),
+            name: i.name,
+            amount: i.amount,
+            required: i.required === true,
+          }))
+        : [newIngredient()],
     steps: recipe.steps.map(({ imageUrl, description, tip }) => ({
       key: newKey(),
       imageUrl,
@@ -101,12 +117,20 @@ function toDraft(recipe: Recipe): Draft {
 }
 
 export default function RecipeEditor({ id }: { id: string | null }) {
-  const router = useRouter();
   const [draft, setDraft] = useState<Draft | null>(() =>
     id ? null : emptyDraft(),
   );
   const [error, setError] = useState("");
+  const [saved, setSaved] = useState<{ id: string; title: string; published: boolean } | null>(
+    null,
+  );
   const [saving, setSaving] = useState(false);
+
+  // 네이버 블로그 자동 가져오기 상태
+  const [blogUrl, setBlogUrl] = useState("");
+  const [importing, setImporting] = useState(false);
+  const [importMessage, setImportMessage] = useState("");
+  const [importError, setImportError] = useState("");
 
   // 수정 모드: 기존 레시피 불러오기
   useEffect(() => {
@@ -116,10 +140,6 @@ export default function RecipeEditor({ id }: { id: string | null }) {
     fetch(`/api/admin/recipes/${encodeURIComponent(id)}`, { cache: "no-store" })
       .then(async (response) => {
         if (cancelled) return;
-        if (response.status === 401) {
-          router.replace("/admin/login");
-          return;
-        }
         const data = await response.json().catch(() => null);
         if (cancelled) return;
         if (!response.ok) {
@@ -135,7 +155,7 @@ export default function RecipeEditor({ id }: { id: string | null }) {
     return () => {
       cancelled = true;
     };
-  }, [id, router]);
+  }, [id]);
 
   if (!draft) {
     return (
@@ -147,7 +167,7 @@ export default function RecipeEditor({ id }: { id: string | null }) {
         ) : (
           <p>불러오는 중…</p>
         )}
-        <Link href="/admin" className={styles.back}>
+        <Link href="/admin/list" className={styles.back}>
           ← 목록으로
         </Link>
       </>
@@ -156,6 +176,17 @@ export default function RecipeEditor({ id }: { id: string | null }) {
 
   function set<K extends keyof Draft>(key: K, value: Draft[K]) {
     setDraft((current) => (current ? { ...current, [key]: value } : current));
+  }
+
+  function toggleCategory(categoryId: CategoryId) {
+    setDraft((current) => {
+      if (!current) return current;
+      const exists = current.categories.includes(categoryId);
+      const categories = exists
+        ? current.categories.filter((c) => c !== categoryId)
+        : [...current.categories, categoryId];
+      return { ...current, categories };
+    });
   }
 
   function updateRow<K extends "ingredients" | "coupangProducts">(
@@ -177,24 +208,113 @@ export default function RecipeEditor({ id }: { id: string | null }) {
     setDraft((current) =>
       current
         ? {
-            ...current,
-            [listKey]: current[listKey].filter((_, i) => i !== index),
-          }
+          ...current,
+          [listKey]: current[listKey].filter((_, i) => i !== index),
+        }
         : current,
     );
+  }
+
+  async function handleImportNaver() {
+    const trimmed = blogUrl.trim();
+    if (!trimmed) {
+      setImportError("네이버 블로그 글 링크를 입력해 주세요.");
+      return;
+    }
+
+    setImporting(true);
+    setImportError("");
+    setImportMessage("");
+    setError("");
+
+    try {
+      const response = await fetch("/api/admin/import-naver", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: trimmed }),
+      });
+      const data = await response.json().catch(() => null);
+      if (!response.ok || !data?.draft) {
+        setImportError(data?.error ?? "블로그 글을 가져오지 못했습니다.");
+        setImporting(false);
+        return;
+      }
+
+      const imported = data.draft as {
+        title: string;
+        description: string;
+        categories: CategoryId[];
+        thumbnailUrl: string;
+        cookTimeMinutes: number;
+        difficulty: Difficulty;
+        servings: number;
+        ingredients: { name: string; amount: string; required?: boolean }[];
+        steps: { imageUrl: string; description: string; tip: string }[];
+        usedAi: boolean;
+        aiWarning?: string;
+      };
+
+      setDraft((current) => ({
+        ...(current ?? emptyDraft()),
+        title: imported.title,
+        description: imported.description,
+        categories: imported.categories,
+        thumbnailUrl: imported.thumbnailUrl,
+        cookTimeMinutes: String(imported.cookTimeMinutes),
+        difficulty: imported.difficulty,
+        servings: String(imported.servings),
+        ingredients:
+          imported.ingredients.length > 0
+            ? imported.ingredients.map((i) => ({
+                key: newKey(),
+                name: i.name,
+                amount: i.amount,
+                required: i.required === true,
+              }))
+            : [newIngredient()],
+        steps: imported.steps.map((s) => newStep(s)),
+      }));
+
+      if (imported.usedAi) {
+        setImportMessage(
+          `블로그 이미지 ${data.imageCount ?? imported.steps.length}장과 본문을 AI로 정리해 카드 ${imported.steps.length}장을 만들었어요. 아래에서 확인·수정 후 등록해 주세요.`,
+        );
+      } else {
+        setImportMessage(
+          imported.aiWarning ??
+            `블로그에서 카드 ${imported.steps.length}장을 불러왔습니다.`,
+        );
+      }
+    } catch {
+      setImportError("서버에 연결할 수 없습니다.");
+    }
+    setImporting(false);
   }
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
     if (!draft) return;
+
+    if (draft.categories.length === 0) {
+      setError("카테고리를 하나 이상 선택해 주세요.");
+      return;
+    }
+
     setSaving(true);
     setError("");
+    setSaved(null);
 
     const payload = {
       ...draft,
-      cookTimeMinutes: Number(draft.cookTimeMinutes),
-      servings: Number(draft.servings),
-      ingredients: draft.ingredients.map(({ name, amount }) => ({ name, amount })),
+      category: draft.categories[0],
+      categories: draft.categories,
+      cookTimeMinutes: Number(draft.cookTimeMinutes) || 15,
+      servings: Number(draft.servings) || 2,
+      ingredients: draft.ingredients.map(({ name, amount, required }) => ({
+        name,
+        amount,
+        required,
+      })),
       steps: draft.steps.map(({ imageUrl, description, tip }) => ({
         imageUrl,
         description,
@@ -216,19 +336,18 @@ export default function RecipeEditor({ id }: { id: string | null }) {
           body: JSON.stringify(payload),
         },
       );
-      if (response.status === 401) {
-        router.replace("/admin/login");
-        return;
-      }
-      if (response.ok) {
-        // 새 글 작성 화면을 다시 열었을 때 이전 입력이 남지 않도록 비웁니다.
-        if (!id) setDraft(emptyDraft());
-        setSaving(false);
-        router.push("/admin");
-        return;
-      }
       const data = await response.json().catch(() => null);
-      setError(data?.error ?? "저장에 실패했습니다.");
+      if (response.ok && data?.recipe) {
+        setSaved({
+          id: data.recipe.id,
+          title: data.recipe.title,
+          published: data.recipe.published,
+        });
+        if (!id) setDraft(emptyDraft());
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      } else {
+        setError(data?.error ?? "저장에 실패했습니다.");
+      }
     } catch {
       setError("서버에 연결할 수 없습니다.");
     }
@@ -238,15 +357,104 @@ export default function RecipeEditor({ id }: { id: string | null }) {
   return (
     <form className={styles.form} onSubmit={handleSubmit}>
       <div className={styles.top}>
-        <h1 className={styles.title}>{id ? "레시피 수정" : "새 레시피"}</h1>
-        <Link href="/admin" className={styles.back}>
-          ← 목록으로
+        <h1 className={styles.title}>{id ? "레시피 수정" : "레시피 작성"}</h1>
+        <Link href="/admin/list" className={styles.back}>
+          등록된 목록 보기 →
         </Link>
       </div>
 
-      {/* ---------- 기본 정보 ---------- */}
+      {saved ? (
+        <div className={styles.notice} role="status">
+          <p>
+            <strong>‘{saved.title}’</strong> 레시피가 저장되었습니다.
+          </p>
+          <div className={styles.noticeActions}>
+            {saved.published ? (
+              <Link href={`/recipe/${saved.id}`} target="_blank">
+                레시피 보러 가기
+              </Link>
+            ) : null}
+            <Link href="/admin/list">목록 보기</Link>
+          </div>
+        </div>
+      ) : null}
+
+      {/* ---------- 네이버 블로그 자동 가져오기 ---------- */}
+      {!id ? (
+        <section className={styles.importBox} aria-label="네이버 블로그 가져오기">
+          <div className={styles.importHead}>
+            <strong>네이버 블로그에서 자동 가져오기</strong>
+            <span>글 링크를 넣으면 사진과 설명을 AI가 카드로 정리해 채워 줍니다.</span>
+          </div>
+          <div className={styles.importRow}>
+            <input
+              type="url"
+              value={blogUrl}
+              onChange={(e) => setBlogUrl(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  void handleImportNaver();
+                }
+              }}
+              placeholder="https://blog.naver.com/아이디/글번호"
+              aria-label="네이버 블로그 글 링크"
+              disabled={importing}
+            />
+            <button
+              type="button"
+              className={styles.importButton}
+              onClick={() => void handleImportNaver()}
+              disabled={importing}
+            >
+              {importing ? "불러오는 중…" : "AI로 가져오기"}
+            </button>
+          </div>
+          {importing ? (
+            <p className={styles.importStatus}>
+              블로그 이미지를 저장하고 AI로 레시피 카드를 정리하는 중입니다…
+            </p>
+          ) : null}
+          {importMessage ? (
+            <p className={styles.importSuccess} role="status">
+              {importMessage}
+            </p>
+          ) : null}
+          {importError ? (
+            <p className={styles.inlineError} role="alert">
+              {importError}
+            </p>
+          ) : null}
+        </section>
+      ) : null}
+
+      {/* ---------- 분류 (중복 선택 체크박스) ---------- */}
       <fieldset className={styles.group}>
-        <legend>기본 정보</legend>
+        <legend>카테고리</legend>
+        <p className={styles.help}>해당하는 항목을 모두 선택할 수 있어요.</p>
+        <div className={styles.checkGroup}>
+          {ADMIN_CATEGORIES.map((category) => {
+            const checked = draft.categories.includes(category.id);
+            return (
+              <label
+                key={category.id}
+                className={`${styles.checkChip} ${checked ? styles.checkChipOn : ""}`}
+              >
+                <input
+                  type="checkbox"
+                  checked={checked}
+                  onChange={() => toggleCategory(category.id)}
+                />
+                <span>{category.label}</span>
+              </label>
+            );
+          })}
+        </div>
+      </fieldset>
+
+      {/* ---------- 제목 & 썸네일 ---------- */}
+      <fieldset className={styles.group}>
+        <legend>제목 및 썸네일</legend>
 
         <label className={styles.field}>
           <span>제목</span>
@@ -254,98 +462,55 @@ export default function RecipeEditor({ id }: { id: string | null }) {
             type="text"
             value={draft.title}
             onChange={(e) => set("title", e.target.value)}
+            placeholder="예: 10분 완성 대파 계란볶음밥"
             maxLength={100}
             required
           />
         </label>
 
-        <label className={styles.field}>
-          <span>한 줄 소개</span>
-          <textarea
-            rows={2}
-            value={draft.description}
-            onChange={(e) => set("description", e.target.value)}
-            maxLength={500}
-          />
-        </label>
-
-        <div className={styles.cols}>
-          <label className={styles.field}>
-            <span>카테고리</span>
-            <select
-              value={draft.category}
-              onChange={(e) => set("category", e.target.value as CategoryId)}
-            >
-              {CATEGORIES.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.label}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className={styles.field}>
-            <span>난이도</span>
-            <select
-              value={draft.difficulty}
-              onChange={(e) => set("difficulty", e.target.value as Difficulty)}
-            >
-              {DIFFICULTIES.map((d) => (
-                <option key={d} value={d}>
-                  {d}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className={styles.field}>
-            <span>조리 시간 (분)</span>
-            <input
-              type="number"
-              inputMode="numeric"
-              min={1}
-              max={1440}
-              value={draft.cookTimeMinutes}
-              onChange={(e) => set("cookTimeMinutes", e.target.value)}
-              required
-            />
-          </label>
-          <label className={styles.field}>
-            <span>인분</span>
-            <input
-              type="number"
-              inputMode="numeric"
-              min={1}
-              max={100}
-              value={draft.servings}
-              onChange={(e) => set("servings", e.target.value)}
-              required
-            />
-          </label>
-        </div>
-
-        <label className={styles.field}>
-          <span>썸네일 이미지 URL</span>
-          <input
-            type="url"
+        <div className={styles.field}>
+          <span>썸네일 이미지 (1:1)</span>
+          <ImageField
             value={draft.thumbnailUrl}
-            onChange={(e) => set("thumbnailUrl", e.target.value)}
-            placeholder="https://"
+            onChange={(url) => set("thumbnailUrl", url)}
+            placeholder="썸네일 이미지를 클릭하거나 끌어다 놓으세요"
+            ratio="1/1"
+            ariaLabel="썸네일 이미지"
           />
-        </label>
+        </div>
       </fieldset>
 
-      {/* ---------- 재료 ---------- */}
+      {/* ---------- 재료 (필수 / 재료 / 수량) ---------- */}
       <fieldset className={styles.group}>
         <legend>재료</legend>
+        <div className={styles.ingredientHeader} aria-hidden="true">
+          <span>필수</span>
+          <span>재료</span>
+          <span>수량</span>
+          <span />
+        </div>
         <ul className={styles.rows}>
           {draft.ingredients.map((item, index) => (
             <li key={item.key} className={styles.row}>
+              <label className={styles.reqCheck}>
+                <input
+                  type="checkbox"
+                  checked={item.required}
+                  onChange={(e) =>
+                    updateRow("ingredients", index, {
+                      required: e.target.checked,
+                    })
+                  }
+                  aria-label={`재료 ${index + 1} 필수 여부`}
+                />
+              </label>
               <input
                 type="text"
                 value={item.name}
                 onChange={(e) =>
                   updateRow("ingredients", index, { name: e.target.value })
                 }
-                placeholder="재료명"
+                placeholder="재료명 (예: 계란)"
                 aria-label={`재료 ${index + 1} 이름`}
               />
               <input
@@ -354,8 +519,8 @@ export default function RecipeEditor({ id }: { id: string | null }) {
                 onChange={(e) =>
                   updateRow("ingredients", index, { amount: e.target.value })
                 }
-                placeholder="용량 (예: 1큰술)"
-                aria-label={`재료 ${index + 1} 용량`}
+                placeholder="수량 (예: 2개)"
+                aria-label={`재료 ${index + 1} 수량`}
               />
               <button
                 type="button"
@@ -377,96 +542,156 @@ export default function RecipeEditor({ id }: { id: string | null }) {
         </button>
       </fieldset>
 
-      {/* ---------- 조리 과정 ---------- */}
+      {/* ---------- 카드 (3x3 이미지 그리드 + 클릭 레이어 편집) ---------- */}
       <fieldset className={styles.group}>
-        <legend>조리 과정</legend>
+        <legend>레시피 카드</legend>
         <StepEditor
           steps={draft.steps}
-          onChange={(steps) => set("steps", steps)}
+          onChange={(steps) =>
+            setDraft((current) => {
+              if (!current) return current;
+              // 썸네일이 비어 있으면 가장 마지막 카드의 사진을 자동으로 썸네일에 채웁니다.
+              const lastPhoto =
+                [...steps].reverse().find((s) => s.imageUrl)?.imageUrl ?? "";
+              return {
+                ...current,
+                steps,
+                thumbnailUrl: current.thumbnailUrl || lastPhoto,
+              };
+            })
+          }
           createStep={newStep}
         />
       </fieldset>
 
-      {/* ---------- 쿠팡 파트너스 ---------- */}
-      <fieldset className={styles.group}>
-        <legend>쿠팡 파트너스 추천 상품</legend>
-        <p className={styles.help}>
-          레시피 하단에 노출됩니다. 상품이 하나라도 있으면 대가성 고지 문구가
-          자동으로 함께 표시됩니다.
-        </p>
-        <ul className={styles.rows}>
-          {draft.coupangProducts.map((product, index) => (
-            <li key={product.key} className={styles.product}>
-              <input
-                type="text"
-                value={product.name}
-                onChange={(e) =>
-                  updateRow("coupangProducts", index, { name: e.target.value })
-                }
-                placeholder="상품명 (예: 굴소스)"
-                aria-label={`상품 ${index + 1} 이름`}
-              />
-              <input
-                type="url"
-                value={product.url}
-                onChange={(e) =>
-                  updateRow("coupangProducts", index, { url: e.target.value })
-                }
-                placeholder="파트너스 링크 https://link.coupang.com/…"
-                aria-label={`상품 ${index + 1} 링크`}
-              />
-              <input
-                type="url"
-                value={product.imageUrl}
-                onChange={(e) =>
-                  updateRow("coupangProducts", index, {
-                    imageUrl: e.target.value,
-                  })
-                }
-                placeholder="상품 이미지 URL (선택)"
-                aria-label={`상품 ${index + 1} 이미지`}
-              />
-              <button
-                type="button"
-                className={styles.remove}
-                onClick={() => removeRow("coupangProducts", index)}
-              >
-                삭제
-              </button>
-            </li>
-          ))}
-        </ul>
-        <button
-          type="button"
-          className={styles.add}
-          onClick={() =>
-            set("coupangProducts", [...draft.coupangProducts, newProduct()])
-          }
-        >
-          + 상품 추가
-        </button>
-      </fieldset>
+      {/* ---------- 추가 정보 (선택) ---------- */}
+      <details className={styles.details}>
+        <summary>추가 정보 설정 (소개, 소요 시간, 공개 여부 등)</summary>
+        <div className={styles.detailsBody}>
+          <label className={styles.field}>
+            <span>한 줄 소개</span>
+            <textarea
+              rows={2}
+              value={draft.description}
+              onChange={(e) => set("description", e.target.value)}
+              placeholder="레시피를 한 줄로 소개해 주세요."
+              maxLength={500}
+            />
+          </label>
 
-      {/* ---------- 공개 설정 ---------- */}
-      <fieldset className={styles.group}>
-        <legend>공개 설정</legend>
-        <label className={styles.check}>
-          <input
-            type="checkbox"
-            checked={draft.published}
-            onChange={(e) => set("published", e.target.checked)}
-          />
-          사이트에 공개
-        </label>
-        <label className={styles.check}>
-          <input
-            type="checkbox"
-            checked={draft.recommended}
-            onChange={(e) => set("recommended", e.target.checked)}
-          />
-          메인 추천 레시피에 노출
-        </label>
-      </fieldset>
+          <div className={styles.cols}>
+            <label className={styles.field}>
+              <span>난이도</span>
+              <select
+                value={draft.difficulty}
+                onChange={(e) => set("difficulty", e.target.value as Difficulty)}
+              >
+                {DIFFICULTIES.map((d) => (
+                  <option key={d} value={d}>
+                    {d}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className={styles.field}>
+              <span>조리 시간 (분)</span>
+              <input
+                type="number"
+                inputMode="numeric"
+                min={1}
+                max={1440}
+                value={draft.cookTimeMinutes}
+                onChange={(e) => set("cookTimeMinutes", e.target.value)}
+              />
+            </label>
+            <label className={styles.field}>
+              <span>인분</span>
+              <input
+                type="number"
+                inputMode="numeric"
+                min={1}
+                max={100}
+                value={draft.servings}
+                onChange={(e) => set("servings", e.target.value)}
+              />
+            </label>
+          </div>
+
+          <div className={styles.optionChecks}>
+            <label className={styles.check}>
+              <input
+                type="checkbox"
+                checked={draft.published}
+                onChange={(e) => set("published", e.target.checked)}
+              />
+              사이트에 공개
+            </label>
+            <label className={styles.check}>
+              <input
+                type="checkbox"
+                checked={draft.recommended}
+                onChange={(e) => set("recommended", e.target.checked)}
+              />
+              인기 레시피에 노출
+            </label>
+          </div>
+
+          <div className={styles.subSection}>
+            <p className={styles.subTitle}>쿠팡 파트너스 추천 상품 (선택)</p>
+            <ul className={styles.rows}>
+              {draft.coupangProducts.map((product, index) => (
+                <li key={product.key} className={styles.product}>
+                  <input
+                    type="text"
+                    value={product.name}
+                    onChange={(e) =>
+                      updateRow("coupangProducts", index, { name: e.target.value })
+                    }
+                    placeholder="상품명 (예: 굴소스)"
+                    aria-label={`상품 ${index + 1} 이름`}
+                  />
+                  <input
+                    type="url"
+                    value={product.url}
+                    onChange={(e) =>
+                      updateRow("coupangProducts", index, { url: e.target.value })
+                    }
+                    placeholder="파트너스 링크 https://link.coupang.com/…"
+                    aria-label={`상품 ${index + 1} 링크`}
+                  />
+                  <input
+                    type="url"
+                    value={product.imageUrl}
+                    onChange={(e) =>
+                      updateRow("coupangProducts", index, {
+                        imageUrl: e.target.value,
+                      })
+                    }
+                    placeholder="상품 이미지 URL (선택)"
+                    aria-label={`상품 ${index + 1} 이미지`}
+                  />
+                  <button
+                    type="button"
+                    className={styles.remove}
+                    onClick={() => removeRow("coupangProducts", index)}
+                  >
+                    삭제
+                  </button>
+                </li>
+              ))}
+            </ul>
+            <button
+              type="button"
+              className={styles.add}
+              onClick={() =>
+                set("coupangProducts", [...draft.coupangProducts, newProduct()])
+              }
+            >
+              + 상품 추가
+            </button>
+          </div>
+        </div>
+      </details>
 
       <div className={styles.footer}>
         {error ? (

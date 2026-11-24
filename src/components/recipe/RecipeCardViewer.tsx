@@ -115,7 +115,9 @@ export default function RecipeCardViewer({ steps, category, leading = [] }: Prop
             </span>
             <span className={styles.of}>Step</span>
           </p>
-          <p className={styles.description}>{step.description}</p>
+          {step.description ? (
+            <p className={styles.description}>{step.description}</p>
+          ) : null}
           {step.tip ? (
             <p className={styles.tip}>
               <strong>TIP</strong>

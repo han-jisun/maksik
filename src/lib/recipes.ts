@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import { cacheLife, cacheTag } from "next/cache";
+import { getRecipeCategories } from "./categories";
 import type { CategoryId, Recipe, RecipeInput } from "./types";
 
 /**
@@ -84,7 +85,9 @@ export async function searchRecipes(
   const terms = query.toLowerCase().split(/\s+/).filter(Boolean);
 
   return recipes.filter((recipe) => {
-    if (category && recipe.category !== category) return false;
+    if (category && !getRecipeCategories(recipe).includes(category)) {
+      return false;
+    }
     if (terms.length === 0) return true;
 
     const haystack = [

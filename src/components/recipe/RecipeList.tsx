@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { categoryLabel } from "@/lib/categories";
+import { categoryLabel, getRecipeCategories } from "@/lib/categories";
 import { formatCookTime } from "@/lib/site";
 import type { Recipe } from "@/lib/types";
 import RecipeImage from "./RecipeImage";
@@ -12,6 +12,7 @@ export type RecipeSummary = Pick<
   | "title"
   | "description"
   | "category"
+  | "categories"
   | "thumbnailUrl"
   | "cookTimeMinutes"
   | "difficulty"
@@ -24,6 +25,7 @@ export function toSummary(recipe: Recipe): RecipeSummary {
     title,
     description,
     category,
+    categories,
     thumbnailUrl,
     cookTimeMinutes,
     difficulty,
@@ -34,6 +36,7 @@ export function toSummary(recipe: Recipe): RecipeSummary {
     title,
     description,
     category,
+    categories,
     thumbnailUrl,
     cookTimeMinutes,
     difficulty,
@@ -70,9 +73,13 @@ export default function RecipeList({
               priority={index < 2}
             />
             <div className={styles.body}>
-              <span className={`${styles.badge} ${styles[recipe.category]}`}>
-                {categoryLabel(recipe.category)}
-              </span>
+              <div className={styles.badges}>
+                {getRecipeCategories(recipe).map((cat) => (
+                  <span key={cat} className={`${styles.badge} ${styles[cat]}`}>
+                    {categoryLabel(cat)}
+                  </span>
+                ))}
+              </div>
               <h3 className={styles.title}>{recipe.title}</h3>
               <p className={styles.meta}>
                 {formatCookTime(recipe.cookTimeMinutes)} · {recipe.difficulty}

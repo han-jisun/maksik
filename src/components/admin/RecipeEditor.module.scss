@@ -16,7 +16,7 @@
 
   textarea {
     resize: vertical;
-    line-height: 1.5;
+    line-height: 1.55;
   }
 }
 
@@ -37,11 +37,101 @@
   align-items: center;
   min-height: 44px;
   font-size: $font-size-sm;
+  font-weight: 600;
   color: $color-text-sub;
 
   &:hover {
     color: $color-primary;
   }
+}
+
+.notice {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: $space-3;
+  padding: $space-3 $space-4;
+  border: 1px solid $color-accent;
+  border-radius: $radius-md;
+  background: #f3f7ee;
+  font-size: $font-size-sm;
+}
+
+.noticeActions {
+  display: flex;
+  gap: $space-3;
+
+  a {
+    font-weight: 700;
+    color: $color-header;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+}
+
+// ---------- 네이버 블로그 자동 가져오기 ----------
+.importBox {
+  display: flex;
+  flex-direction: column;
+  gap: $space-2;
+  padding: $space-4;
+  border: 1px solid $color-accent;
+  border-radius: 14px;
+  background: #f5f7ef;
+}
+
+.importHead {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  strong {
+    font-family: $font-family-title;
+    font-size: $font-size-md;
+    font-weight: 800;
+    color: $color-header;
+  }
+
+  span {
+    font-size: $font-size-xs;
+    color: $color-text-sub;
+  }
+}
+
+.importRow {
+  display: flex;
+  flex-direction: column;
+  gap: $space-2;
+
+  @include tablet {
+    flex-direction: row;
+  }
+
+  input {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+.importButton {
+  @include button-primary;
+  flex-shrink: 0;
+  min-height: 44px;
+  padding: 0 $space-4;
+  font-size: $font-size-sm;
+  white-space: nowrap;
+}
+
+.importStatus {
+  font-size: $font-size-xs;
+  color: $color-text-sub;
+}
+
+.importSuccess {
+  font-size: $font-size-xs;
+  font-weight: 600;
+  color: $color-header;
 }
 
 .group {
@@ -69,6 +159,10 @@
   display: block;
   margin-bottom: $space-3;
 
+  &:last-child {
+    margin-bottom: 0;
+  }
+
   > span {
     display: block;
     margin-bottom: $space-1;
@@ -78,20 +172,193 @@
   }
 }
 
-.cols {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0 $space-3;
-
-  @include desktop {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-}
-
 .help {
   margin-bottom: $space-3;
   font-size: $font-size-sm;
   color: $color-text-sub;
+}
+
+// ---------- 카테고리 체크박스 칩 ----------
+.checkGroup {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $space-2;
+}
+
+.checkChip {
+  display: inline-flex;
+  align-items: center;
+  gap: $space-2;
+  min-height: 44px;
+  padding: 0 $space-4;
+  border: 1px solid $color-border;
+  border-radius: $radius-full;
+  background: $color-bg;
+  font-family: $font-family-title;
+  font-size: $font-size-sm;
+  font-weight: 700;
+  color: $color-text-sub;
+  cursor: pointer;
+  transition: border-color 0.15s, background-color 0.15s, color 0.15s;
+
+  input {
+    width: 18px;
+    height: 18px;
+    accent-color: $color-primary;
+    cursor: pointer;
+  }
+
+  &:hover {
+    border-color: $color-primary;
+  }
+}
+
+.checkChipOn {
+  border-color: $color-primary;
+  background: $color-primary-soft;
+  color: $color-primary-dark;
+}
+
+// ---------- 이미지 업로더 ----------
+.imageField {
+  display: flex;
+  flex-direction: column;
+  gap: $space-2;
+}
+
+.imageFieldSquare {
+  max-width: 280px;
+
+  .dropzone,
+  .previewWrap {
+    max-height: 280px;
+  }
+}
+
+.hiddenFile {
+  display: none;
+}
+
+.dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: $space-2;
+  width: 100%;
+  max-height: 260px;
+  padding: $space-4;
+  border: 1.5px dashed $color-rule;
+  border-radius: 14px;
+  background: $color-bg;
+  color: $color-text-sub;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.15s, background-color 0.15s, color 0.15s;
+
+  span {
+    font-size: $font-size-sm;
+    font-weight: 700;
+  }
+
+  small {
+    font-size: $font-size-xs;
+    color: $color-text-mute;
+  }
+
+  &:hover {
+    border-color: $color-primary;
+    color: $color-primary;
+  }
+}
+
+.dropzoneActive {
+  border-color: $color-primary;
+  background: $color-primary-soft;
+  color: $color-primary-dark;
+}
+
+.previewWrap {
+  position: relative;
+  width: 100%;
+  max-height: 300px;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid $color-border;
+  background: $color-bg;
+}
+
+.previewImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.previewActions {
+  position: absolute;
+  right: $space-2;
+  bottom: $space-2;
+  display: flex;
+  gap: $space-1;
+
+  button {
+    min-height: 34px;
+    padding: 0 $space-3;
+    border-radius: $radius-full;
+    background: rgba(59, 54, 46, 0.82);
+    color: #fdfbf3;
+    font-size: $font-size-xs;
+    font-weight: 700;
+
+    &:hover:not(:disabled) {
+      background: $color-header;
+    }
+  }
+
+  .previewRemove:hover:not(:disabled) {
+    background: $color-danger;
+  }
+}
+
+.urlToggleRow {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.urlToggle {
+  font-size: $font-size-xs;
+  color: $color-text-mute;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+
+  &:hover {
+    color: $color-primary;
+  }
+}
+
+.urlInput {
+  font-size: $font-size-sm;
+}
+
+.inlineError {
+  color: $color-danger;
+  font-size: $font-size-xs;
+}
+
+// ---------- 재료 ----------
+.ingredientHeader {
+  display: grid;
+  grid-template-columns: 36px minmax(0, 3fr) minmax(0, 2fr) 44px;
+  gap: $space-2;
+  margin-bottom: $space-1;
+  font-size: $font-size-xs;
+  font-weight: 700;
+  color: $color-text-mute;
+
+  span:first-child {
+    text-align: center;
+  }
 }
 
 .rows {
@@ -102,8 +369,384 @@
 
 .row {
   display: grid;
-  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr) 44px;
+  grid-template-columns: 36px minmax(0, 3fr) minmax(0, 2fr) 44px;
+  align-items: center;
   gap: $space-2;
+}
+
+.reqCheck {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  cursor: pointer;
+
+  input {
+    width: 18px;
+    height: 18px;
+    accent-color: $color-primary;
+    cursor: pointer;
+  }
+}
+
+// ---------- 3x3 이미지 카드 그리드 & 편집 레이어 ----------
+.photoGridWrap {
+  display: flex;
+  flex-direction: column;
+  gap: $space-3;
+  border-radius: 14px;
+  transition: background-color 0.15s;
+}
+
+.photoGridDropping {
+  padding: $space-2;
+  background: $color-primary-soft;
+  outline: 2px dashed $color-primary;
+}
+
+.photoGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: $space-2;
+
+  @include tablet {
+    gap: $space-3;
+  }
+}
+
+.photoTile {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  border-radius: 12px;
+  border: 1px solid $color-border;
+  background: $color-bg;
+  overflow: hidden;
+  cursor: grab;
+  transition: transform 0.16s ease, box-shadow 0.16s ease, opacity 0.16s ease, border-color 0.16s ease;
+
+  &:hover {
+    border-color: $color-primary;
+    box-shadow: 0 6px 16px rgba(59, 54, 46, 0.08);
+  }
+}
+
+.photoTileDragging {
+  opacity: 0.4;
+  transform: scale(0.95);
+  cursor: grabbing;
+}
+
+.photoTileOver {
+  border: 2px dashed $color-primary;
+  transform: scale(1.03);
+  box-shadow: 0 8px 20px rgba(169, 80, 90, 0.18);
+}
+
+.photoTileButton {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  text-align: left;
+}
+
+.photoTileImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  pointer-events: none;
+}
+
+.photoTileEmpty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  padding: $space-4 $space-2 $space-2;
+  text-align: center;
+  font-size: $font-size-xs;
+  line-height: 1.45;
+  color: $color-text-sub;
+
+  span {
+    @include ellipsis(3);
+  }
+}
+
+.photoTileBadge {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  padding: 2px 7px;
+  border-radius: $radius-full;
+  background: rgba(59, 54, 46, 0.78);
+  color: #fdfbf3;
+  font-family: $font-family-title;
+  font-size: 0.6875rem;
+  font-weight: 800;
+  line-height: 1.4;
+  font-variant-numeric: tabular-nums;
+}
+
+.photoTileHasText {
+  position: absolute;
+  right: 6px;
+  bottom: 6px;
+  padding: 2px 6px;
+  border-radius: $radius-full;
+  background: rgba(79, 102, 69, 0.9);
+  color: #fdfbf3;
+  font-family: $font-family-title;
+  font-size: 0.625rem;
+  font-weight: 800;
+  line-height: 1.4;
+}
+
+.photoTileDelete {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: $radius-full;
+  background: rgba(59, 54, 46, 0.72);
+  color: #fdfbf3;
+  font-size: 0.75rem;
+  line-height: 1;
+  transition: background-color 0.15s;
+
+  &:hover {
+    background: $color-danger;
+  }
+}
+
+.photoTileAddWrap {
+  aspect-ratio: 1 / 1;
+}
+
+.photoTileAdd {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  height: 100%;
+  border: 1.5px dashed $color-rule;
+  border-radius: 12px;
+  background: $color-bg;
+  color: $color-text-sub;
+  font-family: $font-family-title;
+  font-size: $font-size-xs;
+  font-weight: 700;
+  transition: border-color 0.15s, background-color 0.15s, color 0.15s;
+
+  &:hover:not(:disabled) {
+    border-color: $color-primary;
+    background: $color-primary-soft;
+    color: $color-primary-dark;
+  }
+}
+
+.photoGridFoot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: $space-2;
+}
+
+.photoGridHint {
+  font-size: $font-size-xs;
+  color: $color-text-mute;
+}
+
+.cardNumber {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px $space-2;
+  border-radius: $radius-full;
+  background: $color-primary-soft;
+  color: $color-primary-dark;
+  font-family: $font-family-title;
+  font-size: $font-size-xs;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  font-variant-numeric: tabular-nums;
+}
+
+// ---------- 카드 상세 편집 모달 레이어 ----------
+.modalBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: $space-4;
+  background: rgba(38, 34, 28, 0.56);
+  backdrop-filter: blur(4px);
+}
+
+.modalCard {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 560px;
+  max-height: min(90dvh, 760px);
+  border-radius: 20px;
+  border: 1px solid $color-border;
+  background: $color-surface;
+  box-shadow: 0 20px 50px rgba(38, 34, 28, 0.25);
+  overflow: hidden;
+}
+
+.modalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $space-2;
+  padding: $space-3 $space-4;
+  border-bottom: 1px solid $color-border;
+}
+
+.modalTitleGroup {
+  display: flex;
+  align-items: center;
+  gap: $space-2;
+}
+
+.modalNav {
+  display: inline-flex;
+  gap: 4px;
+
+  button {
+    @include button-ghost;
+    min-width: 34px;
+    min-height: 34px;
+    padding: 0 $space-2;
+    font-size: $font-size-sm;
+  }
+}
+
+.modalClose {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: $radius-full;
+  color: $color-text-sub;
+  font-size: $font-size-md;
+
+  &:hover {
+    background: $color-bg;
+    color: $color-text;
+  }
+}
+
+.modalBody {
+  flex: 1;
+  min-height: 0;
+  padding: $space-4;
+  overflow-y: auto;
+}
+
+.modalImageArea {
+  margin-bottom: $space-4;
+
+  .previewWrap {
+    max-height: 360px;
+  }
+
+  .previewImg {
+    object-fit: contain;
+    background: $color-bg;
+  }
+}
+
+.modalFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $space-3;
+  padding: $space-3 $space-4;
+  border-top: 1px solid $color-border;
+  background: $color-bg;
+}
+
+.modalDone {
+  @include button-primary;
+  min-width: 110px;
+  min-height: 44px;
+}
+
+// ---------- 추가 정보 (접이식) ----------
+.details {
+  @include card;
+  padding: $space-4;
+
+  summary {
+    font-family: $font-family-title;
+    font-size: $font-size-md;
+    font-weight: 700;
+    color: $color-text-sub;
+    cursor: pointer;
+    list-style: none;
+
+    &::-webkit-details-marker {
+      display: none;
+    }
+
+    &::before {
+      content: "▸ ";
+      color: $color-primary;
+    }
+  }
+
+  &[open] summary::before {
+    content: "▾ ";
+  }
+}
+
+.detailsBody {
+  margin-top: $space-4;
+  padding-top: $space-4;
+  border-top: 1px solid $color-border;
+}
+
+.cols {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: $space-3;
+  margin-bottom: $space-3;
+}
+
+.optionChecks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $space-4;
+  margin-bottom: $space-3;
+}
+
+.subSection {
+  margin-top: $space-4;
+  padding-top: $space-4;
+  border-top: 1px solid $color-border;
+}
+
+.subTitle {
+  margin-bottom: $space-2;
+  font-size: $font-size-sm;
+  font-weight: 700;
+  color: $color-text-sub;
 }
 
 .product {
@@ -138,53 +781,6 @@
   border-style: dashed;
 }
 
-.steps {
-  display: flex;
-  flex-direction: column;
-  gap: $space-3;
-}
-
-.step {
-  padding: $space-3;
-  border: 1px solid $color-border;
-  border-radius: $radius-md;
-  background: $color-bg;
-
-  .field:last-child {
-    margin-bottom: 0;
-  }
-}
-
-.stepHead {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: $space-2;
-
-  strong {
-    color: $color-primary;
-    font-size: $font-size-sm;
-    letter-spacing: 0.04em;
-  }
-}
-
-.stepTools {
-  display: flex;
-  gap: $space-1;
-
-  button {
-    @include button-ghost;
-    min-width: 40px;
-    min-height: 40px;
-    padding: 0 $space-2;
-    font-size: $font-size-sm;
-  }
-
-  .remove {
-    color: $color-danger;
-  }
-}
-
 .check {
   display: flex;
   align-items: center;
@@ -204,7 +800,7 @@
   bottom: 0;
   margin-inline: -$space-4;
   padding: $space-3 $space-4;
-  background: rgba(#f7f5f2, 0.95);
+  background: rgba(#f6f1e3, 0.95);
   backdrop-filter: blur(6px);
   border-top: 1px solid $color-border;
 }
