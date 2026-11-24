@@ -547,20 +547,10 @@ export default function RecipeEditor({ id }: { id: string | null }) {
         <legend>레시피 카드</legend>
         <StepEditor
           steps={draft.steps}
-          onChange={(steps) =>
-            setDraft((current) => {
-              if (!current) return current;
-              // 썸네일이 비어 있으면 가장 마지막 카드의 사진을 자동으로 썸네일에 채웁니다.
-              const lastPhoto =
-                [...steps].reverse().find((s) => s.imageUrl)?.imageUrl ?? "";
-              return {
-                ...current,
-                steps,
-                thumbnailUrl: current.thumbnailUrl || lastPhoto,
-              };
-            })
-          }
+          onChange={(steps) => set("steps", steps)}
           createStep={newStep}
+          thumbnailUrl={draft.thumbnailUrl}
+          onSelectThumbnail={(url) => set("thumbnailUrl", url)}
         />
       </fieldset>
 

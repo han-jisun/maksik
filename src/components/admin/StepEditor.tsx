@@ -15,15 +15,25 @@ interface Props {
   steps: StepDraft[];
   onChange: (steps: StepDraft[]) => void;
   createStep: (initial?: Partial<Omit<StepDraft, "key">>) => StepDraft;
+  /** 현재 레시피의 대표 썸네일 URL */
+  thumbnailUrl: string;
+  /** 카드 상세에서 썸네일로 설정/해제할 때 호출 */
+  onSelectThumbnail: (url: string) => void;
 }
 
 /**
  * 3x3 그리드 기반 카드 에디터:
  * - 이미지를 여러 장 올려 3열로 촤르륵 배치합니다.
  * - 카드를 드래그앤드롭해 순서를 바꿀 수 있습니다.
- * - 카드를 클릭하면 큰 이미지와 함께 설명·팁을 입력하는 레이어가 열립니다.
+ * - 카드를 클릭하면 큰 이미지와 함께 설명·팁·썸네일 설정을 입력하는 레이어가 열립니다.
  */
-export default function StepEditor({ steps, onChange, createStep }: Props) {
+export default function StepEditor({
+  steps,
+  onChange,
+  createStep,
+  thumbnailUrl,
+  onSelectThumbnail,
+}: Props) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [dragIndex, setDragIndex] = useState<number | null>(null);
@@ -59,12 +69,25 @@ export default function StepEditor({ steps, onChange, createStep }: Props) {
   }, [editingIndex]);
 
   function update(index: number, patch: Partial<StepDraft>) {
+    const prevImage = steps[index]?.imageUrl;
     onChange(steps.map((s, i) => (i === index ? { ...s, ...patch } : s)));
+    // 현재 썸네일로 지정된 카드의 이미지가 바뀌거나 삭제되면 썸네일도 함께 갱신합니다.
+    if (
+      patch.imageUrl !== undefined &&
+      prevImage &&
+      thumbnailUrl === prevImage
+    ) {
+      onSelectThumbnail(patch.imageUrl);
+    }
   }
 
   function remove(index: number) {
+    const removedImage = steps[index]?.imageUrl;
     const next = steps.filter((_, i) => i !== index);
     onChange(next);
+    if (removedImage && thumbnailUrl === removedImage) {
+      onSelectThumbnail("");
+    }
     if (editingIndex === null) return;
     if (next.length === 0) {
       setEditingIndex(null);
@@ -183,6 +206,7 @@ export default function StepEditor({ steps, onChange, createStep }: Props) {
           const isDragging = dragIndex === index;
           const isOver = overIndex === index && dragIndex !== null && dragIndex !== index;
           const hasText = Boolean(step.description.trim() || step.tip.trim());
+          const isThumbnail = Boolean(step.imageUrl && thumbnailUrl === step.imageUrl);
 
           return (
             <li
@@ -239,6 +263,10 @@ export default function StepEditor({ steps, onChange, createStep }: Props) {
                 <span className={styles.photoTileBadge}>
                   {String(index + 1).padStart(2, "0")}
                 </span>
+
+                {isThumbnail ? (
+                  <span className={styles.photoTileThumb}>썸네일</span>
+                ) : null}
 
                 {hasText ? (
                   <span
@@ -372,6 +400,20 @@ export default function StepEditor({ steps, onChange, createStep }: Props) {
                   ratio="4/3"
                   ariaLabel={`카드 ${editingIndex + 1} 이미지`}
                 />
+                {editingStep.imageUrl ? (
+                  <label className={styles.thumbCheck}>
+                    <input
+                      type="checkbox"
+                      checked={thumbnailUrl === editingStep.imageUrl}
+                      onChange={(e) =>
+                        onSelectThumbnail(
+                          e.target.checked ? editingStep.imageUrl : "",
+                        )
+                      }
+                    />
+                    <span>이 이미지를 대표 썸네일로 설정</span>
+                  </label>
+                ) : null}
               </div>
 
               <label className={styles.field}>

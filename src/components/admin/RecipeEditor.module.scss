@@ -505,6 +505,20 @@
   line-height: 1.4;
 }
 
+.photoTileThumb {
+  position: absolute;
+  left: 6px;
+  bottom: 6px;
+  padding: 2px 7px;
+  border-radius: $radius-full;
+  background: rgba(169, 80, 90, 0.92);
+  color: #fdfbf3;
+  font-family: $font-family-title;
+  font-size: 0.625rem;
+  font-weight: 800;
+  line-height: 1.4;
+}
+
 .photoTileDelete {
   position: absolute;
   top: 6px;
@@ -669,6 +683,35 @@
   .previewImg {
     object-fit: contain;
     background: $color-bg;
+  }
+}
+
+.thumbCheck {
+  display: inline-flex;
+  align-items: center;
+  gap: $space-2;
+  margin-top: $space-2;
+  padding: $space-2 $space-3;
+  border: 1px solid $color-border;
+  border-radius: $radius-full;
+  background: $color-bg;
+  font-family: $font-family-title;
+  font-size: $font-size-xs;
+  font-weight: 700;
+  color: $color-text;
+  cursor: pointer;
+
+  input {
+    width: 17px;
+    height: 17px;
+    accent-color: $color-primary;
+    cursor: pointer;
+  }
+
+  &:has(input:checked) {
+    border-color: $color-primary;
+    background: $color-primary-soft;
+    color: $color-primary-dark;
   }
 }
 

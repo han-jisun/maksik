@@ -66,7 +66,7 @@ function buildFallbackDraft(
       title: post.title || "새 레시피",
       description: leadingTexts.slice(0, 2).join(" ").slice(0, 200),
       categories: ["simple"],
-      thumbnailUrl: post.images[post.images.length - 1] ?? post.images[0] ?? "",
+      thumbnailUrl: "",
       cookTimeMinutes: 15,
       difficulty: "쉬움",
       servings: 2,
@@ -324,12 +324,7 @@ export async function structureRecipeWithGemini(
       ? (parsed.difficulty as Difficulty)
       : "쉬움";
 
-    // 가장 마지막 사진을 대표 썸네일로 사용합니다 (요리 완성 사진 기준).
-    const lastImageUrl =
-      [...steps].reverse().find((s) => s.imageUrl)?.imageUrl ??
-      post.images[post.images.length - 1] ??
-      "";
-
+    // 썸네일은 사용자가 카드 상세에서 직접 선택할 수 있도록 비워 둡니다.
     return {
       title:
         typeof parsed.title === "string" && parsed.title.trim()
@@ -340,7 +335,7 @@ export async function structureRecipeWithGemini(
           ? parsed.description.trim().slice(0, 500)
           : "",
       categories: categories.length > 0 ? categories : ["simple"],
-      thumbnailUrl: lastImageUrl,
+      thumbnailUrl: "",
       cookTimeMinutes: cookTime,
       difficulty,
       servings,
