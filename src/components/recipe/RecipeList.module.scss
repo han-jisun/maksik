@@ -17,8 +17,10 @@
   gap: $space-4;
   margin-inline: -$space-5;
   padding: 0 $space-5 $space-2;
-  // 프리 모드: 특정 위치에 달라붙지 않고 민 만큼 자유롭게 움직입니다.
+  // 한 장씩 스냅되는 가로 스와이퍼
   overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: $space-5;
   overscroll-behavior-x: contain;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
@@ -30,6 +32,8 @@
   .item {
     flex: 0 0 58%;
     max-width: 240px;
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
   }
 }
 

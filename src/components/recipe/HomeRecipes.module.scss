@@ -3,6 +3,10 @@
 
 .section {
   margin-top: $space-5;
+
+  & + .section {
+    margin-top: $space-10;
+  }
 }
 
 .heading {

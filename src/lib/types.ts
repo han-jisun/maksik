@@ -40,9 +40,13 @@ export interface Recipe {
   coupangProducts: CoupangProduct[];
   published: boolean;
   recommended: boolean;
+  viewCount: number;
   createdAt: string;
   updatedAt: string;
 }
 
-/** 관리자 작성 폼에서 보내는 값 (id, 날짜는 서버에서 채움) */
-export type RecipeInput = Omit<Recipe, "id" | "createdAt" | "updatedAt">;
+/** 관리자 작성 폼에서 보내는 값 (id, 조회수, 날짜는 서버에서 채움) */
+export type RecipeInput = Omit<
+  Recipe,
+  "id" | "viewCount" | "createdAt" | "updatedAt"
+>;

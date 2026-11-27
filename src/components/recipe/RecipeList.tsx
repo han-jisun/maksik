@@ -17,6 +17,7 @@ export type RecipeSummary = Pick<
   | "cookTimeMinutes"
   | "difficulty"
   | "recommended"
+  | "viewCount"
 >;
 
 export function toSummary(recipe: Recipe): RecipeSummary {
@@ -30,6 +31,7 @@ export function toSummary(recipe: Recipe): RecipeSummary {
     cookTimeMinutes,
     difficulty,
     recommended,
+    viewCount,
   } = recipe;
   return {
     id,
@@ -41,6 +43,7 @@ export function toSummary(recipe: Recipe): RecipeSummary {
     cookTimeMinutes,
     difficulty,
     recommended,
+    viewCount,
   };
 }
 

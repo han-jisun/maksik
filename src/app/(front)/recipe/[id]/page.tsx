@@ -5,6 +5,7 @@ import HomeLink from "@/components/common/HomeLink";
 import AdSection from "@/components/recipe/AdSection";
 import RecipeImage from "@/components/recipe/RecipeImage";
 import RecipeView from "@/components/recipe/RecipeView";
+import RecipeViewTracker from "@/components/recipe/RecipeViewTracker";
 import { categoryLabel, getRecipeCategories } from "@/lib/categories";
 import { getPublishedRecipe } from "@/lib/recipes";
 import { absoluteUrl, formatCookTime, SITE_NAME } from "@/lib/site";
@@ -97,6 +98,7 @@ async function RecipeContent({ params }: Props) {
 
   return (
     <article className={styles.detail}>
+      <RecipeViewTracker id={recipe.id} />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{

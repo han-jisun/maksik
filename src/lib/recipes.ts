@@ -31,6 +31,7 @@ interface RecipeRow {
   coupang_products: CoupangProduct[] | null;
   published: boolean;
   recommended: boolean;
+  view_count?: number | null;
   created_at: string;
   updated_at: string;
 }
@@ -79,6 +80,7 @@ function toRecipe(row: RecipeRow): Recipe {
     coupangProducts: row.coupang_products ?? [],
     published: row.published,
     recommended: row.recommended,
+    viewCount: row.view_count ?? 0,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
@@ -243,4 +245,35 @@ export async function deleteRecipe(id: string): Promise<boolean> {
 
   if (error) throw new Error(`레시피 삭제 실패: ${error.message}`);
   return (data?.length ?? 0) > 0;
+}
+
+/** 공개 레시피 조회수 1 증가 (RPC 우선, 미생성 시 일반 업데이트 폴백) */
+export async function incrementRecipeView(id: string): Promise<boolean> {
+  const supabase = getSupabase();
+  const { error: rpcError } = await supabase.rpc("increment_recipe_view", {
+    recipe_id: id,
+  });
+  if (!rpcError) return true;
+
+  const { data, error: selectError } = await supabase
+    .from(TABLE)
+    .select("view_count")
+    .eq("id", id)
+    .eq("published", true)
+    .maybeSingle();
+
+  if (selectError || !data) return false;
+
+  const current =
+    typeof (data as { view_count?: unknown }).view_count === "number"
+      ? (data as { view_count: number }).view_count
+      : 0;
+
+  const { error: updateError } = await supabase
+    .from(TABLE)
+    .update({ view_count: current + 1 })
+    .eq("id", id)
+    .eq("published", true);
+
+  return !updateError;
 }
