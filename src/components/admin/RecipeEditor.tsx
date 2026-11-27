@@ -134,6 +134,7 @@ export default function RecipeEditor({ id }: { id: string | null }) {
 
   function resetNewForm() {
     setDraft(emptyDraft());
+    setSaving(false);
     setError("");
     setBlogUrl("");
     setImportMessage("");
@@ -357,14 +358,14 @@ export default function RecipeEditor({ id }: { id: string | null }) {
       if (response.ok && data?.recipe) {
         if (!id) resetNewForm();
         router.push("/admin/list");
-        return;
       } else {
         setError(data?.error ?? "저장에 실패했습니다.");
       }
     } catch {
       setError("서버에 연결할 수 없습니다.");
+    } finally {
+      setSaving(false);
     }
-    setSaving(false);
   }
 
   return (
