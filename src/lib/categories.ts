@@ -18,6 +18,11 @@ export const CATEGORIES: Category[] = [
     label: "제철한끼",
     description: "계절 식재료를 활용한 요리",
   },
+  {
+    id: "diet",
+    label: "식단한끼",
+    description: "가볍고 부담 없는 저칼로리 요리",
+  },
 ];
 
 export const DIFFICULTIES: Difficulty[] = ["쉬움", "보통", "어려움"];

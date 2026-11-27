@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { DIFFICULTIES, getRecipeCategories } from "@/lib/categories";
 import type { CategoryId, Difficulty, Recipe } from "@/lib/types";
@@ -12,6 +13,7 @@ const ADMIN_CATEGORIES: { id: CategoryId; label: string }[] = [
   { id: "simple", label: "간단요리" },
   { id: "special", label: "특별요리" },
   { id: "seasonal", label: "제철요리" },
+  { id: "diet", label: "식단한끼" },
 ];
 
 interface IngredientDraft {
@@ -117,13 +119,11 @@ function toDraft(recipe: Recipe): Draft {
 }
 
 export default function RecipeEditor({ id }: { id: string | null }) {
+  const router = useRouter();
   const [draft, setDraft] = useState<Draft | null>(() =>
     id ? null : emptyDraft(),
   );
   const [error, setError] = useState("");
-  const [saved, setSaved] = useState<{ id: string; title: string; published: boolean } | null>(
-    null,
-  );
   const [saving, setSaving] = useState(false);
 
   // 네이버 블로그 자동 가져오기 상태
@@ -131,6 +131,24 @@ export default function RecipeEditor({ id }: { id: string | null }) {
   const [importing, setImporting] = useState(false);
   const [importMessage, setImportMessage] = useState("");
   const [importError, setImportError] = useState("");
+
+  function resetNewForm() {
+    setDraft(emptyDraft());
+    setError("");
+    setBlogUrl("");
+    setImportMessage("");
+    setImportError("");
+  }
+
+  // 새 글 작성 화면에서 헤더의 '작성' 등을 다시 눌렀을 때도 입력값을 모두 초기화합니다.
+  useEffect(() => {
+    if (id) return;
+    function onReset() {
+      resetNewForm();
+    }
+    window.addEventListener("admin-recipe-reset", onReset);
+    return () => window.removeEventListener("admin-recipe-reset", onReset);
+  }, [id]);
 
   // 수정 모드: 기존 레시피 불러오기
   useEffect(() => {
@@ -302,7 +320,6 @@ export default function RecipeEditor({ id }: { id: string | null }) {
 
     setSaving(true);
     setError("");
-    setSaved(null);
 
     const payload = {
       ...draft,
@@ -338,13 +355,9 @@ export default function RecipeEditor({ id }: { id: string | null }) {
       );
       const data = await response.json().catch(() => null);
       if (response.ok && data?.recipe) {
-        setSaved({
-          id: data.recipe.id,
-          title: data.recipe.title,
-          published: data.recipe.published,
-        });
-        if (!id) setDraft(emptyDraft());
-        window.scrollTo({ top: 0, behavior: "smooth" });
+        if (!id) resetNewForm();
+        router.push("/admin/list");
+        return;
       } else {
         setError(data?.error ?? "저장에 실패했습니다.");
       }
@@ -362,22 +375,6 @@ export default function RecipeEditor({ id }: { id: string | null }) {
           등록된 목록 보기 →
         </Link>
       </div>
-
-      {saved ? (
-        <div className={styles.notice} role="status">
-          <p>
-            <strong>‘{saved.title}’</strong> 레시피가 저장되었습니다.
-          </p>
-          <div className={styles.noticeActions}>
-            {saved.published ? (
-              <Link href={`/recipe/${saved.id}`} target="_blank">
-                레시피 보러 가기
-              </Link>
-            ) : null}
-            <Link href="/admin/list">목록 보기</Link>
-          </div>
-        </div>
-      ) : null}
 
       {/* ---------- 네이버 블로그 자동 가져오기 ---------- */}
       {!id ? (
@@ -615,14 +612,6 @@ export default function RecipeEditor({ id }: { id: string | null }) {
                 onChange={(e) => set("published", e.target.checked)}
               />
               사이트에 공개
-            </label>
-            <label className={styles.check}>
-              <input
-                type="checkbox"
-                checked={draft.recommended}
-                onChange={(e) => set("recommended", e.target.checked)}
-              />
-              인기 레시피에 노출
             </label>
           </div>
 

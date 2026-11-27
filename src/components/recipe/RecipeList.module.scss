@@ -73,6 +73,10 @@
   color: $color-cat-seasonal;
 }
 
+.diet {
+  color: $color-cat-diet;
+}
+
 .title {
   @include ellipsis(2);
   margin-top: 2px;

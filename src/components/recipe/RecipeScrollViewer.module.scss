@@ -41,8 +41,10 @@
 }
 
 .description {
+  font-family: $font-family-recipe;
   font-size: $font-size-lg;
   line-height: 1.75;
+  white-space: pre-line;
 }
 
 .tip {
@@ -50,8 +52,10 @@
   padding-left: $space-3;
   border-left: 2px solid $color-primary;
   color: $color-text-sub;
+  font-family: $font-family-recipe;
   font-size: $font-size-sm;
   line-height: 1.7;
+  white-space: pre-line;
 
   strong {
     @include eyebrow;

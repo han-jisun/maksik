@@ -176,7 +176,7 @@ export async function structureRecipeWithGemini(
     "{",
     '  "title": "깔끔한 요리 제목 (블로그 잡담/해시태그 제거, 40자 이내)",',
     '  "description": "요리 한 줄 소개 (1~2문장, 자연스러운 한국어)",',
-    '  "categories": ["simple" | "special" | "seasonal" 중 해당하는 것 1개 이상],',
+    '  "categories": ["simple" | "special" | "seasonal" | "diet" 중 해당하는 것 1개 이상],',
     '  "thumbnailIndex": 대표 완성 요리 사진의 이미지 번호(0 이상 정수, 이미지가 없으면 null),',
     '  "cookTimeMinutes": 예상 조리 시간(분, 정수),',
     '  "difficulty": "쉬움" | "보통" | "어려움",',
@@ -190,7 +190,7 @@ export async function structureRecipeWithGemini(
     "2. 각 이미지 바로 위·아래의 블로그 설명을 참고해 해당 카드의 description 을 읽기 쉬운 레시피 문장(합니다체)으로 다듬어 주세요.",
     "3. 인사말, 광고 문구, 해시태그, 이모티콘 남발은 정리하되 요리 정보와 팁은 빠뜨리지 마세요.",
     "4. ingredients 에서 요리에 꼭 들어가야 하는 핵심·필수 재료는 required: true, 없어도 되거나 취향·고명(깨, 파슬리 등)에 해당하는 선택 재료는 required: false 로 구분해 주세요.",
-    "5. categories 규칙: simple=간단요리, special=특별요리, seasonal=제철요리 (중복 선택 가능).",
+    "5. categories 규칙: simple=간단요리, special=특별요리, seasonal=제철요리, diet=식단한끼 (중복 선택 가능).",
     "6. JSON 외의 마크다운 설명이나 여분 텍스트는 절대 출력하지 마세요.",
   ].join("\n");
 

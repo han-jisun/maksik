@@ -26,6 +26,7 @@ export default function RecipeScrollViewer({ steps, category }: Props) {
                 src={step.imageUrl}
                 alt={`${step.stepNumber}단계 사진`}
                 category={category}
+                ratio="1/1"
                 className={styles.image}
               />
             ) : null}

@@ -17,5 +17,7 @@
 
 .main {
   flex: 1;
+  min-height: 100vh;
+  min-height: 100dvh;
   padding: $space-6 $space-5 $space-12;
 }

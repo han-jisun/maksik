@@ -107,6 +107,7 @@ export default function RecipeCardViewer({ steps, category, leading = [] }: Prop
               src={step.imageUrl}
               alt={`${step.stepNumber}단계 사진`}
               category={category}
+              ratio="1/1"
             />
           ) : null}
           <p className={styles.label}>

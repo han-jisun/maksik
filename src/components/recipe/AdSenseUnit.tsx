@@ -26,15 +26,7 @@ export default function AdSenseUnit() {
     }
   }, [enabled]);
 
-  if (!enabled) {
-    // 애드센스 승인 전: 환경 변수를 설정하기 전까지는 개발 중에만 자리 표시를 보여 줍니다.
-    if (process.env.NODE_ENV === "production") return null;
-    return (
-      <div className={styles.placeholder}>
-        광고 영역 (NEXT_PUBLIC_ADSENSE_CLIENT / SLOT 설정 시 노출)
-      </div>
-    );
-  }
+  if (!enabled) return null;
 
   return (
     <div className={styles.unit}>

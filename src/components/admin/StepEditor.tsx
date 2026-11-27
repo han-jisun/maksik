@@ -35,6 +35,7 @@ export default function StepEditor({
   onSelectThumbnail,
 }: Props) {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const backdropMouseDownRef = useRef(false);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [overIndex, setOverIndex] = useState<number | null>(null);
@@ -350,7 +351,18 @@ export default function StepEditor({
           role="dialog"
           aria-modal="true"
           aria-label={`카드 ${editingIndex + 1} 편집`}
-          onClick={() => setEditingIndex(null)}
+          onMouseDown={(event) => {
+            backdropMouseDownRef.current = event.target === event.currentTarget;
+          }}
+          onClick={(event) => {
+            if (
+              backdropMouseDownRef.current &&
+              event.target === event.currentTarget
+            ) {
+              setEditingIndex(null);
+            }
+            backdropMouseDownRef.current = false;
+          }}
         >
           <div
             className={styles.modalCard}
@@ -397,7 +409,7 @@ export default function StepEditor({
                   value={editingStep.imageUrl}
                   onChange={(imageUrl) => update(editingIndex, { imageUrl })}
                   placeholder="이미지를 선택하거나 끌어다 놓으세요"
-                  ratio="4/3"
+                  ratio="1/1"
                   ariaLabel={`카드 ${editingIndex + 1} 이미지`}
                 />
                 {editingStep.imageUrl ? (
@@ -430,8 +442,8 @@ export default function StepEditor({
 
               <label className={styles.field}>
                 <span>팁 (선택)</span>
-                <input
-                  type="text"
+                <textarea
+                  rows={3}
                   value={editingStep.tip}
                   onChange={(e) => update(editingIndex, { tip: e.target.value })}
                   placeholder="불 세기나 맛을 살리는 팁이 있다면 적어 주세요."

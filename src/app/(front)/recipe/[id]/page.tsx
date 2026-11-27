@@ -6,21 +6,12 @@ import AdSection from "@/components/recipe/AdSection";
 import RecipeImage from "@/components/recipe/RecipeImage";
 import RecipeView from "@/components/recipe/RecipeView";
 import { categoryLabel, getRecipeCategories } from "@/lib/categories";
-import { getPublishedRecipe, getPublishedRecipes } from "@/lib/recipes";
+import { getPublishedRecipe } from "@/lib/recipes";
 import { absoluteUrl, formatCookTime, SITE_NAME } from "@/lib/site";
 import type { Recipe } from "@/lib/types";
 import styles from "./page.module.scss";
 
 type Props = { params: Promise<{ id: string }> };
-
-// 공개된 레시피는 빌드 시 미리 렌더링하고, 이후 추가된 레시피는 첫 요청 때 생성됩니다.
-export async function generateStaticParams() {
-  const recipes = await getPublishedRecipes();
-  // Cache Components 는 최소 1개의 샘플 파라미터가 필요합니다.
-  return recipes.length > 0
-    ? recipes.map(({ id }) => ({ id }))
-    : [{ id: "__placeholder__" }];
-}
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
@@ -161,11 +152,10 @@ async function RecipeContent({ params }: Props) {
         }
         ingredients={
           <section aria-labelledby="ingredients">
-            <p className={styles.eyebrow}>Ingredients</p>
             <h2 id="ingredients" className={styles.heading}>
               재료
               <span className={styles.servings}>
-                {recipe.servings}인분 기준
+                {recipe.servings}인분 기준, 1T = 밥숟갈 1큰술
               </span>
             </h2>
             <ul className={styles.ingredients}>

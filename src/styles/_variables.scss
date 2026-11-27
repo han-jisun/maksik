@@ -28,9 +28,10 @@ $color-danger: #b3261e;
 $color-cat-simple: #b0832b;
 $color-cat-special: #a9505a;
 $color-cat-seasonal: #6f8a4e;
+$color-cat-diet: #4d8a84;
 
-// 폰트
-$font-family-base: "Pretendard", -apple-system, BlinkMacSystemFont,
+// 폰트 (기본: 나눔고딕)
+$font-family-base: "NanumGothic", -apple-system, BlinkMacSystemFont,
   "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", system-ui, sans-serif;
 
 // 테마 폰트: 로고, 타이틀, 제목 (나눔스퀘어 네오)
@@ -38,7 +39,7 @@ $font-family-title: "NanumSquareNeo", $font-family-base;
 // 손글씨 장식 (나눔손글씨 펜)
 $font-family-hand: "NanumPen", $font-family-title;
 // 레시피 상세 본문 (나눔고딕)
-$font-family-recipe: "NanumGothic", $font-family-base;
+$font-family-recipe: $font-family-base;
 
 $font-size-xs: 0.75rem;
 $font-size-sm: 0.875rem;

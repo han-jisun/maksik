@@ -8,6 +8,12 @@ import styles from "./AdSection.module.scss";
  * 조리 과정을 방해하지 않도록 본문이 모두 끝난 뒤에만 배치합니다.
  */
 export default function AdSection({ products }: { products: CoupangProduct[] }) {
+  const hasAdSense = Boolean(
+    process.env.NEXT_PUBLIC_ADSENSE_CLIENT &&
+      process.env.NEXT_PUBLIC_ADSENSE_SLOT,
+  );
+  if (products.length === 0 && !hasAdSense) return null;
+
   return (
     <aside className={styles.section} aria-label="추천 상품 및 광고">
       {products.length > 0 ? (

@@ -1,4 +1,4 @@
-export type CategoryId = "simple" | "special" | "seasonal";
+export type CategoryId = "simple" | "special" | "seasonal" | "diet";
 
 export type Difficulty = "쉬움" | "보통" | "어려움";
 

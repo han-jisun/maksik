@@ -1,59 +1,122 @@
 import { randomUUID } from "node:crypto";
-import { promises as fs } from "node:fs";
-import path from "node:path";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { cacheLife, cacheTag } from "next/cache";
 import { getRecipeCategories } from "./categories";
-import type { CategoryId, Recipe, RecipeInput } from "./types";
-
-/**
- * 레시피 저장소.
- *
- * DB가 아직 확정되지 않아 `data/recipes.json` 파일을 저장소로 사용합니다.
- * Supabase 등으로 옮길 때는 이 파일의 read/write 함수만 교체하면 됩니다.
- * (파일 쓰기는 Vercel 같은 서버리스 환경에서는 동작하지 않습니다.)
- */
-const DATA_FILE = path.join(process.cwd(), "data", "recipes.json");
+import type {
+  CategoryId,
+  CoupangProduct,
+  Difficulty,
+  Ingredient,
+  Recipe,
+  RecipeInput,
+  RecipeStep,
+} from "./types";
 
 export const RECIPES_TAG = "recipes";
 
-// ---------- 저수준 읽기/쓰기 ----------
+const TABLE = "recipes";
+
+interface RecipeRow {
+  id: string;
+  title: string;
+  description: string;
+  category: CategoryId;
+  categories: CategoryId[] | null;
+  thumbnail_url: string;
+  cook_time_minutes: number;
+  difficulty: Difficulty;
+  servings: number;
+  ingredients: Ingredient[] | null;
+  steps: RecipeStep[] | null;
+  coupang_products: CoupangProduct[] | null;
+  published: boolean;
+  recommended: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+let cachedClient: SupabaseClient | null = null;
+
+function getSupabase(): SupabaseClient {
+  if (cachedClient) return cachedClient;
+
+  const url =
+    process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL;
+  const key =
+    process.env.NEXT_SUPABASE_SERVICE_ROLE_KEY ??
+    process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  if (!url || !key) {
+    throw new Error(
+      "Supabase 환경 변수(NEXT_PUBLIC_SUPABASE_URL, NEXT_SUPABASE_SERVICE_ROLE_KEY)가 설정되지 않았습니다.",
+    );
+  }
+
+  cachedClient = createClient(url, key, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+  return cachedClient;
+}
+
+function toRecipe(row: RecipeRow): Recipe {
+  const categories =
+    Array.isArray(row.categories) && row.categories.length > 0
+      ? row.categories
+      : [row.category];
+
+  return {
+    id: row.id,
+    title: row.title,
+    description: row.description ?? "",
+    category: row.category,
+    categories,
+    thumbnailUrl: row.thumbnail_url ?? "",
+    cookTimeMinutes: row.cook_time_minutes,
+    difficulty: row.difficulty,
+    servings: row.servings,
+    ingredients: row.ingredients ?? [],
+    steps: row.steps ?? [],
+    coupangProducts: row.coupang_products ?? [],
+    published: row.published,
+    recommended: row.recommended,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
+}
+
+function toRowPatch(patch: Partial<RecipeInput>): Record<string, unknown> {
+  const row: Record<string, unknown> = {};
+  if (patch.title !== undefined) row.title = patch.title;
+  if (patch.description !== undefined) row.description = patch.description;
+  if (patch.category !== undefined) row.category = patch.category;
+  if (patch.categories !== undefined) row.categories = patch.categories;
+  if (patch.thumbnailUrl !== undefined) row.thumbnail_url = patch.thumbnailUrl;
+  if (patch.cookTimeMinutes !== undefined) {
+    row.cook_time_minutes = patch.cookTimeMinutes;
+  }
+  if (patch.difficulty !== undefined) row.difficulty = patch.difficulty;
+  if (patch.servings !== undefined) row.servings = patch.servings;
+  if (patch.ingredients !== undefined) row.ingredients = patch.ingredients;
+  if (patch.steps !== undefined) row.steps = patch.steps;
+  if (patch.coupangProducts !== undefined) {
+    row.coupang_products = patch.coupangProducts;
+  }
+  if (patch.published !== undefined) row.published = patch.published;
+  if (patch.recommended !== undefined) row.recommended = patch.recommended;
+  return row;
+}
+
+// ---------- 저수준 읽기 (관리자용) ----------
 
 /** 캐시를 거치지 않는 전체 조회 (관리자용, 비공개 포함) */
 export async function readAllRecipes(): Promise<Recipe[]> {
-  try {
-    const raw = await fs.readFile(DATA_FILE, "utf-8");
-    const parsed: unknown = JSON.parse(raw);
-    return Array.isArray(parsed) ? (parsed as Recipe[]) : [];
-  } catch (error) {
-    if ((error as NodeJS.ErrnoException).code === "ENOENT") return [];
-    throw error;
-  }
-}
+  const { data, error } = await getSupabase()
+    .from(TABLE)
+    .select("*")
+    .order("created_at", { ascending: false });
 
-async function writeAllRecipes(recipes: Recipe[]): Promise<void> {
-  await fs.mkdir(path.dirname(DATA_FILE), { recursive: true });
-  const tmp = `${DATA_FILE}.${process.pid}.tmp`;
-  await fs.writeFile(tmp, `${JSON.stringify(recipes, null, 2)}\n`, "utf-8");
-  await fs.rename(tmp, DATA_FILE);
-}
-
-// 동시에 들어온 쓰기 요청이 서로 덮어쓰지 않도록 순서대로 처리합니다.
-let writeQueue: Promise<unknown> = Promise.resolve();
-
-function mutate<T>(
-  fn: (recipes: Recipe[]) => { next: Recipe[]; result: T },
-): Promise<T> {
-  const run = writeQueue.then(async () => {
-    const { next, result } = fn(await readAllRecipes());
-    await writeAllRecipes(next);
-    return result;
-  });
-  writeQueue = run.catch(() => undefined);
-  return run;
-}
-
-function byNewest(a: Recipe, b: Recipe): number {
-  return b.createdAt.localeCompare(a.createdAt);
+  if (error) throw new Error(`레시피 목록 조회 실패: ${error.message}`);
+  return ((data ?? []) as RecipeRow[]).map(toRecipe);
 }
 
 // ---------- 프론트용 조회 (캐시됨) ----------
@@ -63,8 +126,14 @@ export async function getPublishedRecipes(): Promise<Recipe[]> {
   cacheTag(RECIPES_TAG);
   cacheLife("hours");
 
-  const all = await readAllRecipes();
-  return all.filter((r) => r.published).sort(byNewest);
+  const { data, error } = await getSupabase()
+    .from(TABLE)
+    .select("*")
+    .eq("published", true)
+    .order("created_at", { ascending: false });
+
+  if (error) throw new Error(`공개 레시피 조회 실패: ${error.message}`);
+  return ((data ?? []) as RecipeRow[]).map(toRecipe);
 }
 
 export async function getPublishedRecipe(id: string): Promise<Recipe | null> {
@@ -72,8 +141,15 @@ export async function getPublishedRecipe(id: string): Promise<Recipe | null> {
   cacheTag(RECIPES_TAG);
   cacheLife("hours");
 
-  const all = await readAllRecipes();
-  return all.find((r) => r.id === id && r.published) ?? null;
+  const { data, error } = await getSupabase()
+    .from(TABLE)
+    .select("*")
+    .eq("id", id)
+    .eq("published", true)
+    .maybeSingle();
+
+  if (error) throw new Error(`레시피 조회 실패: ${error.message}`);
+  return data ? toRecipe(data as RecipeRow) : null;
 }
 
 /** 제목 · 설명 · 재료명 기준 검색 */
@@ -104,46 +180,67 @@ export async function searchRecipes(
 // ---------- 관리자용 변경 ----------
 
 export async function getRecipeForAdmin(id: string): Promise<Recipe | null> {
-  const all = await readAllRecipes();
-  return all.find((r) => r.id === id) ?? null;
+  const { data, error } = await getSupabase()
+    .from(TABLE)
+    .select("*")
+    .eq("id", id)
+    .maybeSingle();
+
+  if (error) throw new Error(`관리자 레시피 조회 실패: ${error.message}`);
+  return data ? toRecipe(data as RecipeRow) : null;
 }
 
-export function createRecipe(input: RecipeInput): Promise<Recipe> {
-  return mutate((recipes) => {
-    let id = randomUUID().slice(0, 8);
-    while (recipes.some((r) => r.id === id)) id = randomUUID().slice(0, 8);
+export async function createRecipe(input: RecipeInput): Promise<Recipe> {
+  const now = new Date().toISOString();
 
-    const now = new Date().toISOString();
-    const recipe: Recipe = { ...input, id, createdAt: now, updatedAt: now };
-    return { next: [...recipes, recipe], result: recipe };
-  });
+  for (let attempt = 0; attempt < 5; attempt++) {
+    const id = randomUUID().slice(0, 8);
+    const { data, error } = await getSupabase()
+      .from(TABLE)
+      .insert({
+        id,
+        ...toRowPatch(input),
+        categories: input.categories ?? [input.category],
+        created_at: now,
+        updated_at: now,
+      })
+      .select("*")
+      .single();
+
+    if (!error) return toRecipe(data as RecipeRow);
+    if (error.code !== "23505") {
+      throw new Error(`레시피 등록 실패: ${error.message}`);
+    }
+  }
+
+  throw new Error("레시피 ID 생성에 실패했습니다.");
 }
 
-export function updateRecipe(
+export async function updateRecipe(
   id: string,
   patch: Partial<RecipeInput>,
 ): Promise<Recipe | null> {
-  return mutate((recipes) => {
-    const current = recipes.find((r) => r.id === id);
-    if (!current) return { next: recipes, result: null };
+  const { data, error } = await getSupabase()
+    .from(TABLE)
+    .update({
+      ...toRowPatch(patch),
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", id)
+    .select("*")
+    .maybeSingle();
 
-    const updated: Recipe = {
-      ...current,
-      ...patch,
-      id: current.id,
-      createdAt: current.createdAt,
-      updatedAt: new Date().toISOString(),
-    };
-    return {
-      next: recipes.map((r) => (r.id === id ? updated : r)),
-      result: updated,
-    };
-  });
+  if (error) throw new Error(`레시피 수정 실패: ${error.message}`);
+  return data ? toRecipe(data as RecipeRow) : null;
 }
 
-export function deleteRecipe(id: string): Promise<boolean> {
-  return mutate((recipes) => {
-    const next = recipes.filter((r) => r.id !== id);
-    return { next, result: next.length !== recipes.length };
-  });
+export async function deleteRecipe(id: string): Promise<boolean> {
+  const { data, error } = await getSupabase()
+    .from(TABLE)
+    .delete()
+    .eq("id", id)
+    .select("id");
+
+  if (error) throw new Error(`레시피 삭제 실패: ${error.message}`);
+  return (data?.length ?? 0) > 0;
 }

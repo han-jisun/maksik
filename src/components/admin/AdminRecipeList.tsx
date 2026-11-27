@@ -48,7 +48,7 @@ export default function AdminRecipeList() {
 
   async function patch(
     recipe: Recipe,
-    change: { published?: boolean; recommended?: boolean },
+    change: { published?: boolean },
   ) {
     setBusyId(recipe.id);
     setError("");
@@ -128,7 +128,6 @@ export default function AdminRecipeList() {
                     {getRecipeCategories(recipe).map((cat) => (
                       <span key={cat}>{categoryLabel(cat)}</span>
                     ))}
-                    {recipe.recommended ? <span>★ 추천</span> : null}
                   </p>
                   <h2 className={styles.name}>{recipe.title}</h2>
                   <p className={styles.meta}>
@@ -144,15 +143,6 @@ export default function AdminRecipeList() {
                     onClick={() => patch(recipe, { published: !recipe.published })}
                   >
                     {recipe.published ? "비공개로" : "공개하기"}
-                  </button>
-                  <button
-                    type="button"
-                    disabled={busy}
-                    onClick={() =>
-                      patch(recipe, { recommended: !recipe.recommended })
-                    }
-                  >
-                    {recipe.recommended ? "추천 해제" : "추천"}
                   </button>
                   <Link href={`/admin?id=${recipe.id}`}>수정</Link>
                   {recipe.published ? (

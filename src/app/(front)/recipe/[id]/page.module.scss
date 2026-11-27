@@ -68,6 +68,10 @@
   color: $color-cat-seasonal;
 }
 
+.diet {
+  color: $color-cat-diet;
+}
+
 .title {
   margin-top: $space-1;
   font-size: $font-size-3xl;
@@ -80,7 +84,9 @@
   max-width: 30em;
   margin: $space-4 auto 0;
   color: $color-text-sub;
+  font-family: $font-family-recipe;
   line-height: 1.75;
+  white-space: pre-line;
 
   &::before {
     content: "";
